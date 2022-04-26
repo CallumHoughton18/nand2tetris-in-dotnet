@@ -1,0 +1,14 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=448c8eef_002D82d2_002D49e7_002Db94e_002D011c23df1fcb/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Should_Convert_To_16_Bit_A_Instruction" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.ParserTests.Should_Convert_To_16_Bit_A_Instruction&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.ParserTests.Should_Convert_To_16_Bit_C_Instruction&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.UnitTest1.Test1&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.UnitTest1.Should_Give_Correct_Output_For_Asm_With_Symbols&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.HackAssemblerRunnerIntegrationTests.Should_Give_Correct_Output_For_Asm_Without_Symbols&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.HackAssemblerRunnerIntegrationTests.Should_Give_Correct_Output_For_Asm_With_Symbols&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.HackAssemblerRunnerIntegrationTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.HackAssemblerRunnerIntegrationTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.ParserTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
