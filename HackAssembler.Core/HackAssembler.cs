@@ -7,7 +7,6 @@ public class HackAssembler
     {
         int variableSymbolAddress = 16;
         int currentLineNumber = 1;
-
         try
         {
             var symbolTable = new SymbolTable();

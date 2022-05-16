@@ -10,5 +10,7 @@
     &lt;TestId&gt;xUnit::FA39DD6E-B7B4-4F59-8AEC-FBB7ADE45EFB::net6.0::HackAssembler.Tests.HackAssemblerRunnerIntegrationTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.HackAssemblerRunnerIntegrationTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.ParserTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::326BD969-0113-47BD-80E2-50D8FEB5515C::net6.0::HackVMTranslator.Core.Tests.HackVmTranslatorRunnerIntegrationTests.Should_Give_Correct_Output_For_Asm_Without_Symbols&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::326BD969-0113-47BD-80E2-50D8FEB5515C::net6.0::HackVMTranslator.Core.Tests.HackVmTranslatorRunnerIntegrationTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

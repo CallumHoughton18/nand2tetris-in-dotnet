@@ -27,7 +27,7 @@ public class HackAssemblerRunnerIntegrationTests
     private void AssertFilesAreEqual(string inputFilePath, string expectedOutputFilePath)
     {
         var expectedOutputLines = File.ReadAllLines(expectedOutputFilePath);
-        var outputFile = $"./{Path.GetFileNameWithoutExtension(inputFilePath)}.jack";
+        var outputFile = $"./{Path.GetFileNameWithoutExtension(inputFilePath)}.hack";
         var sut = new HackAssemblerRunner(inputFilePath, outputFile);
         var outputPath = sut.Run();
 
