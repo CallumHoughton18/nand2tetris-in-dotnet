@@ -6,8 +6,11 @@ namespace HackVMTranslator.Core.Tests;
 public class HackVmTranslatorRunnerIntegrationTests
 {
     [Theory]
-    // [InlineData("./Test Input Files/SimpleAdd.vm", "./Expected Output Files/SimpleAdd.asm")]
+    [InlineData("./Test Input Files/SimpleAdd.vm", "./Expected Output Files/SimpleAdd.asm")]
     [InlineData("./Test Input Files/StackTest.vm", "./Expected Output Files/StackTest.asm")]
+    [InlineData("./Test Input Files/BasicTest.vm", "./Expected Output Files/BasicTest.asm")]
+    [InlineData("./Test Input Files/StaticTest.vm", "./Expected Output Files/Statictest.asm")]
+    [InlineData("./Test Input Files/PointerTest.vm", "./Expected Output Files/PointerTest.asm")]
     public void Should_Give_Correct_Output_For_Asm_Without_Symbols(string inputFilePath, string expectedOutputFilePath)
     {        
         AssertFilesAreEqual(inputFilePath, expectedOutputFilePath);

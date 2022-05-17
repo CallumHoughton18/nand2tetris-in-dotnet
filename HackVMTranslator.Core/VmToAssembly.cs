@@ -164,52 +164,53 @@ A=M-1
 M=!M";
     }
 
-    public static string PushCommandToAssembly(MemorySegment segment, int value)
+    public static string PushCommandToAssembly(string staticPrefix, MemorySegment segment, int value)
     {
         switch (segment)
         {
             case MemorySegment.LOCAL:
-                return $@"
-@{value}
-D=A
-@LCL
-D=D+M
-@addr
-M=D
-@SP
-A=M
-D=M
-@addr
-A=M
-M=D";
-                break;
+                return PushMemoryCommands.ToLocalAssembly(value);
             case MemorySegment.ARGUMENT:
-                break;
+                return PushMemoryCommands.ToArgumentAssembly(value);
             case MemorySegment.THIS:
-                break;
+                return PushMemoryCommands.ToThisAssembly(value);
             case MemorySegment.THAT:
-                break;
+                return PushMemoryCommands.ToThatAssembly(value);
             case MemorySegment.CONSTANT:
-                return $@"
-@{value}
-D=A
-
-@SP
-A=M
-M=D
-
-@SP
-M=M+1";
+                return PushMemoryCommands.ToConstantAssembly(value);
             case MemorySegment.STATIC:
-                break;
+                return PushMemoryCommands.ToStaticAssembly(staticPrefix, value);
             case MemorySegment.POINTER:
-                break;
+                return PushMemoryCommands.ToPointerAssembly(value);
             case MemorySegment.TEMP:
-                break;
+                return PushMemoryCommands.ToTempAssembly(value);
             default:
                 throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
         }
-
-        return "";
+    }
+    
+    public static string PopCommandToAssembly(string staticPrefix, MemorySegment segment, int value)
+    {
+        switch (segment)
+        {
+            case MemorySegment.LOCAL:
+                return PopMemoryCommands.ToLocalAssembly(value);
+            case MemorySegment.ARGUMENT:
+                return PopMemoryCommands.ToArgumentAssembly(value);
+            case MemorySegment.THIS:
+                return PopMemoryCommands.ToThisAssembly(value);
+            case MemorySegment.THAT:
+                return PopMemoryCommands.ToThatAssembly(value);
+            case MemorySegment.CONSTANT:
+                throw new InvalidDataException("Cannot perform POP command for constant memory segment");
+            case MemorySegment.STATIC:
+                return PopMemoryCommands.ToStaticAssembly(staticPrefix, value);
+            case MemorySegment.POINTER:
+                return PopMemoryCommands.ToPointerAssembly(value);
+            case MemorySegment.TEMP:
+                return PopMemoryCommands.ToTempAssembly(value);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
+        }
     }
 }

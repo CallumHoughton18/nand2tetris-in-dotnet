@@ -4,7 +4,7 @@ public class VmTranslator
 {
     private const string CommentString = "//";
 
-    public void ConvertToAssembly(StreamReader streamReader, StreamWriter streamWriter)
+    public void ConvertToAssembly(string staticPrefix, StreamReader streamReader, StreamWriter streamWriter)
     {
         string? line;
         int index = 0;
@@ -46,11 +46,14 @@ public class VmTranslator
                     streamWriter.Write(VmToAssembly.NotCommand());
                     break;
                 case VmCommands.POP:
+                    var popSegment = Enum.Parse<MemorySegment>(lineSplit[1].ToUpper());
+                    var popValue = int.Parse(lineSplit[2]);
+                    streamWriter.Write(VmToAssembly.PopCommandToAssembly(staticPrefix, popSegment, popValue));
                     break;
                 case VmCommands.PUSH:
                     var segment = Enum.Parse<MemorySegment>(lineSplit[1].ToUpper());
                     var value = int.Parse(lineSplit[2]);
-                    streamWriter.Write(VmToAssembly.PushCommandToAssembly(segment, value));
+                    streamWriter.Write(VmToAssembly.PushCommandToAssembly(staticPrefix, segment, value));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

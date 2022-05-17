@@ -26,3 +26,22 @@ internal enum MemorySegment
     POINTER,
     TEMP
 }
+
+internal enum LogicalCommands
+{
+    ADD,
+    SUB,
+    NEG,
+    EQ,
+    GT,
+    LT,
+    AND,
+    OR,
+    NOT,
+}
+
+internal enum MemoryAccessCommands
+{
+    PUSH,
+    POP
+}

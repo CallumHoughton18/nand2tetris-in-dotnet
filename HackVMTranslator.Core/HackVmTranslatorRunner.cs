@@ -15,7 +15,7 @@ public class HackVmTranslatorRunner{
         using var reader = File.OpenRead(_assemblyFilePath);
         using var writer = new StreamWriter(_outPath, false);
         var assembler = new VmTranslator();
-        assembler.ConvertToAssembly(new StreamReader(reader), writer);
+        assembler.ConvertToAssembly(Path.GetFileNameWithoutExtension(_assemblyFilePath), new StreamReader(reader), writer);
         return _outPath;
     }
 }
