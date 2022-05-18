@@ -1,6 +1,6 @@
-namespace HackVMTranslator.Core;
+namespace HackVMTranslator.Core.Command_Translators.Memory_Access_Commands;
 
-public static class PushMemoryCommands
+public static class PushMemoryCommandTranslations
 {
     private static string PushTemplate(string addressPrefix, string baseAddress, int value)
     {

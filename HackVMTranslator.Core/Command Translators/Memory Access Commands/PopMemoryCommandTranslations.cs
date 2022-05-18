@@ -1,6 +1,6 @@
-namespace HackVMTranslator.Core;
+namespace HackVMTranslator.Core.Command_Translators.Memory_Access_Commands;
 
-public static class PopMemoryCommands
+public static class PopMemoryCommandTranslations
 {
     private static string PopTemplate(string addressPrefix, string baseAddress, int value)
     {

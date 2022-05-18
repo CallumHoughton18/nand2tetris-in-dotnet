@@ -1,6 +1,6 @@
 namespace HackVMTranslator.Core;
 
-public class HackVmTranslatorRunner{
+public class HackVmTranslatorRunner {
 
     private readonly string _assemblyFilePath;
     private readonly string _outPath;
@@ -14,8 +14,8 @@ public class HackVmTranslatorRunner{
     {
         using var reader = File.OpenRead(_assemblyFilePath);
         using var writer = new StreamWriter(_outPath, false);
-        var assembler = new VmTranslator();
-        assembler.ConvertToAssembly(Path.GetFileNameWithoutExtension(_assemblyFilePath), new StreamReader(reader), writer);
+        var assembler = new VmTranslator(Path.GetFileNameWithoutExtension(_assemblyFilePath));
+        assembler.ConvertToAssembly(new StreamReader(reader), writer);
         return _outPath;
     }
 }

@@ -40,6 +40,51 @@
       <None Update="Test Input Files\PointerTest.vm">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="nand2tetris CPU Emulator Test Files\BasicTest.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\BasicTest.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\BasicTest.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\PointerTest.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\PointerTest.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\PointerTest.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\SimpleAdd.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\SimpleAdd.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\SimpleAdd.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StackTest.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StackTest.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StackTest.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StaticTest.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StaticTest.out">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StaticTest.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
