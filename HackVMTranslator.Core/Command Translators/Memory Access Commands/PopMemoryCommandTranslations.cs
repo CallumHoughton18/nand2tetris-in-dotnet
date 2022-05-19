@@ -2,10 +2,10 @@ namespace HackVMTranslator.Core.Command_Translators.Memory_Access_Commands;
 
 public static class PopMemoryCommandTranslations
 {
-    private static string PopTemplate(string addressPrefix, string baseAddress, int value)
+    private static string PopTemplate(string addressPrefix, string baseAddress, int memorySegmentAddress)
     {
         return $@"
-@{value} //value=2
+@{memorySegmentAddress} //value=2
 D=A
 @{baseAddress}
 D=D+M
@@ -23,30 +23,30 @@ A=M
 M=D";
     }
     
-    public static string ToLocalAssembly(int value)
+    public static string ToLocalAssembly(int memorySegmentAddress)
     {
-        return PopTemplate("LOCAL", "LCL", value);
+        return PopTemplate("LOCAL", "LCL", memorySegmentAddress);
     }
     
-    public static string ToArgumentAssembly(int value)
+    public static string ToArgumentAssembly(int memorySegmentAddress)
     {
-        return PopTemplate("ARG", "ARG", value);
+        return PopTemplate("ARG", "ARG", memorySegmentAddress);
     }
 
-    public static string ToThisAssembly(int value)
+    public static string ToThisAssembly(int memorySegmentAddress)
     {
-        return PopTemplate("THIS", "THIS", value);
+        return PopTemplate("THIS", "THIS", memorySegmentAddress);
     }
 
-    public static string ToThatAssembly(int value)
+    public static string ToThatAssembly(int memorySegmentAddress)
     {
-        return PopTemplate("THAT", "THAT", value);
+        return PopTemplate("THAT", "THAT", memorySegmentAddress);
     }
     
-    public static string ToTempAssembly(int value)
+    public static string ToTempAssembly(int memorySegmentAddress)
     {
         return $@"
-@{value}
+@{memorySegmentAddress}
 D=A
 @5
 D=D+A
@@ -62,7 +62,7 @@ D=M
 A=M
 M=D";   }
 
-    public static string ToStaticAssembly(string staticPrefix, int value)
+    public static string ToStaticAssembly(string staticPrefix, int memorySegmentAddress)
     {
         return $@"
 @SP
@@ -71,18 +71,18 @@ M=M-1
 A=M 
 D=M
 
-@{staticPrefix}.{value}
+@{staticPrefix}.{memorySegmentAddress}
 M=D
 ";
     }
 
-    public static string ToPointerAssembly(int value)
+    public static string ToPointerAssembly(int thisOrThat)
     {
-        if (value != 0 && value != 1)
+        if (thisOrThat != 0 && thisOrThat != 1)
             throw new ArgumentException("Pointer memory segment can only accept 0/1" +
                                         "integer values");
 
-        var address = value == 0 ? "THIS" : "THAT";
+        var address = thisOrThat == 0 ? "THIS" : "THAT";
         return $@"
 
 @SP

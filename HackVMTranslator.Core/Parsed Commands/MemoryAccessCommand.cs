@@ -4,6 +4,8 @@ namespace HackVMTranslator.Core.Parsed_Commands;
 
 internal class MemoryAccessCommand : BaseVirtualMachineCommand
 {
+    // For pop command, _value = memory segment address to pop top of stack into
+    // For push command, _value = the ACTUAL value you want to push into a memory segment, not the address
     private readonly int _value;
     private readonly string _staticPrefix;
     private readonly MemoryAccessCommandsTypes _commandType;
@@ -55,26 +57,26 @@ internal class MemoryAccessCommand : BaseVirtualMachineCommand
         }
     }
     
-    private string PopCommandToAssembly(string staticPrefix, MemorySegment segment, int value)
+    private string PopCommandToAssembly(string staticPrefix, MemorySegment segment, int segmentAddress)
     {
         switch (segment)
         {
             case MemorySegment.LOCAL:
-                return PopMemoryCommandTranslations.ToLocalAssembly(value);
+                return PopMemoryCommandTranslations.ToLocalAssembly(segmentAddress);
             case MemorySegment.ARGUMENT:
-                return PopMemoryCommandTranslations.ToArgumentAssembly(value);
+                return PopMemoryCommandTranslations.ToArgumentAssembly(segmentAddress);
             case MemorySegment.THIS:
-                return PopMemoryCommandTranslations.ToThisAssembly(value);
+                return PopMemoryCommandTranslations.ToThisAssembly(segmentAddress);
             case MemorySegment.THAT:
-                return PopMemoryCommandTranslations.ToThatAssembly(value);
+                return PopMemoryCommandTranslations.ToThatAssembly(segmentAddress);
             case MemorySegment.CONSTANT:
                 throw new InvalidDataException("Cannot perform POP command for constant memory segment");
             case MemorySegment.STATIC:
-                return PopMemoryCommandTranslations.ToStaticAssembly(staticPrefix, value);
+                return PopMemoryCommandTranslations.ToStaticAssembly(staticPrefix, segmentAddress);
             case MemorySegment.POINTER:
-                return PopMemoryCommandTranslations.ToPointerAssembly(value);
+                return PopMemoryCommandTranslations.ToPointerAssembly(segmentAddress);
             case MemorySegment.TEMP:
-                return PopMemoryCommandTranslations.ToTempAssembly(value);
+                return PopMemoryCommandTranslations.ToTempAssembly(segmentAddress);
             default:
                 throw new ArgumentOutOfRangeException(nameof(segment), segment, null);
         }
