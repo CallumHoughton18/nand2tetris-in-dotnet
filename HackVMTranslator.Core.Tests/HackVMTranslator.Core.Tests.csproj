@@ -85,6 +85,24 @@
       <None Update="nand2tetris CPU Emulator Test Files\StaticTest.tst">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Test Input Files\BasicLoop.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\BasicLoop.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\BasicLoop.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\FibonacciSeries.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\FibonacciSeries.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Test Input Files\FibonacciSeries.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

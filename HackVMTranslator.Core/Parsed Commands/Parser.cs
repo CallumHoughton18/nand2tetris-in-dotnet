@@ -10,6 +10,9 @@ internal static class Parser
         
         if (TryAndParseMemoryAccessCommand(lineSplit, staticPrefix, out var memoryAccessCommand));
         if (memoryAccessCommand != null) return memoryAccessCommand;
+        
+        if (TryAndParseBranchingCommand(lineSplit, out var branchingCommand));
+        if (branchingCommand != null) return branchingCommand;
 
         throw new UnsupportedVmInstructionException($"{vmLine} is not a supported virtual machine instruction");
     }
@@ -53,6 +56,18 @@ internal static class Parser
         }
 
         parsedCommand = null;
+        return false;
+    }
+    
+    private static bool TryAndParseBranchingCommand(string[] lineSplit, out BaseVirtualMachineCommand? branchingCommand)
+    {
+        if (Enum.TryParse(lineSplit[0].ToUpper().Replace("-", "_"), 
+                out BranchingCommandTypes branchingCommandType))
+        {
+            branchingCommand = new BranchingCommand(lineSplit[1], branchingCommandType);
+            return true;
+        }
+        branchingCommand = null;
         return false;
     }
 }

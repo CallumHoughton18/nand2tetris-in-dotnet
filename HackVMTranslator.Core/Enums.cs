@@ -22,6 +22,13 @@ internal enum MemoryAccessCommandsTypes
     POP
 }
 
+internal enum BranchingCommandTypes
+{
+    GOTO,
+    IF_GOTO,
+    LABEL
+}
+
 internal enum MemorySegment
 {
     LOCAL,

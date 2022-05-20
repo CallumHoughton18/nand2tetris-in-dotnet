@@ -11,6 +11,8 @@ public class HackVmTranslatorRunnerIntegrationTests
     [InlineData("./Test Input Files/BasicTest.vm")]
     [InlineData("./Test Input Files/StaticTest.vm")]
     [InlineData("./Test Input Files/PointerTest.vm")]
+    [InlineData("./Test Input Files/BasicLoop.vm")]
+    [InlineData("./Test Input Files/FibonacciSeries.vm")]
     public void Should_Give_Correct_Output_For_Asm_Without_Symbols(string inputFilePath)
     {        
         var outputFilePath = AssertFileGeneratedSuccessfully(inputFilePath);
