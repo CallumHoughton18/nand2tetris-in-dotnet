@@ -103,6 +103,15 @@
       <None Update="Test Input Files\FibonacciSeries.vm">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Test Input Files\SimpleFunction.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\SimpleFunction.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\SimpleFunction.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

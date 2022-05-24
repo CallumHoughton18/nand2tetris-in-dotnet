@@ -29,6 +29,13 @@ internal enum BranchingCommandTypes
     LABEL
 }
 
+internal enum FunctionCommandTypes
+{
+    CALL,
+    FUNCTION,
+    RETURN
+}
+
 internal enum MemorySegment
 {
     LOCAL,

@@ -13,6 +13,9 @@ internal static class Parser
         
         if (TryAndParseBranchingCommand(lineSplit, out var branchingCommand));
         if (branchingCommand != null) return branchingCommand;
+        
+        if (TryAndParseFunctionCommand(lineSplit, uniqueCommandIndentifer, out var functionCommand));
+        if (functionCommand != null) return functionCommand;
 
         throw new UnsupportedVmInstructionException($"{vmLine} is not a supported virtual machine instruction");
     }
@@ -70,4 +73,29 @@ internal static class Parser
         branchingCommand = null;
         return false;
     }
-}
+    
+    private static bool TryAndParseFunctionCommand(string[] lineSplit,int uniqueCommandIndentifer, 
+        out BaseVirtualMachineCommand? functionCommand)
+    {
+        if (Enum.TryParse(lineSplit[0].ToUpper().Replace("-", "_"), 
+                out FunctionCommandTypes functionCommandTypes))
+        {
+            switch (functionCommandTypes)
+            {
+                case FunctionCommandTypes.CALL:
+                    functionCommand = new CallFunctionCommand(lineSplit[1], uint.Parse(lineSplit[2]), (uint)uniqueCommandIndentifer);
+                    break;
+                case FunctionCommandTypes.FUNCTION:
+                    functionCommand = new FunctionFunctionCommand(lineSplit[1], uint.Parse(lineSplit[2]), (uint)uniqueCommandIndentifer);
+                    break;
+                case FunctionCommandTypes.RETURN:
+                    functionCommand = new ReturnFunctionCommand();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return true;
+        }
+        functionCommand = null;
+        return false;
+    }}
