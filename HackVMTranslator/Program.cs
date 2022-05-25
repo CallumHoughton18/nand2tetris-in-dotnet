@@ -7,6 +7,8 @@ if (arguments.Length < 3)
     Console.WriteLine("Missing arguments...");
     Console.WriteLine("Example Usage:");
     Console.WriteLine("HackVMTranslator \"path/to/vm/file.vm\"  \"output/directory/path/\"");
+    Console.WriteLine("HackVMTranslator \"path/to/vmfiles/directory/\"  \"output/directory/path/\"");
+
     return;
 }
 
