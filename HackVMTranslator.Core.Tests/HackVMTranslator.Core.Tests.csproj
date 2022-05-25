@@ -112,6 +112,33 @@
       <None Update="nand2tetris CPU Emulator Test Files\SimpleFunction.tst">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="Test Input Files\FibonacciElement\Main.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Test Input Files\FibonacciElement\Sys.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\FibonacciElement.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\FibonacciElement.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Test Input Files\StaticsTest\Class1.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Test Input Files\StaticsTest\Class2.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Test Input Files\StaticsTest\Sys.vm">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StaticsTest.cmp">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="nand2tetris CPU Emulator Test Files\StaticsTest.tst">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

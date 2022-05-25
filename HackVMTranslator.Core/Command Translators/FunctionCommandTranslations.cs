@@ -4,7 +4,6 @@ internal static class FunctionCommandTranslations
 {
     private const string PushDOntoStackAndIncrementSp = @"
 // Push D value onto the stack
-D=0
 @SP
 A=M
 M=D
@@ -13,6 +12,7 @@ M=M+1";
     public static string FunctionToAssembly(string functionName, uint numberLocalVariables, uint index)
     {
         string pushZeroToStack = $@"
+D=0
 {PushDOntoStackAndIncrementSp}
 ";
         string varPushingSegment = "";
@@ -33,7 +33,7 @@ M=M+1";
         // translation
         return $@"
 @RETURN_ADDR_{index}
-D=M
+D=A
 // Push return address onto the stack
 {PushDOntoStackAndIncrementSp}
 
@@ -49,22 +49,23 @@ D=M
 D=M
 {PushDOntoStackAndIncrementSp}
 
-@THIS
+@THAT
+D=M
 {PushDOntoStackAndIncrementSp}
 
-// Reposition ARG to new beginning of ARG segment
+// ARG = SP - 5 -nArgs
 @SP
 D=M
 @5
-D=D-M
+D=D-A
 @{numberOfArgs}
 D=D-A
 @ARG
 M=D
 
+// LCL = SP
 @SP
 D=M
-
 @LCL
 M=D
 
