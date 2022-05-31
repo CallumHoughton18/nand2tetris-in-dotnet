@@ -1,0 +1,157 @@
+class Game {
+    field Array grid;
+    field Cursor cursor;
+    field int command;
+    field boolean holdingKey;
+    field int cols, rows;
+
+    constructor Game new() {
+        return this;
+    }
+
+    /** Initialize the game scene and draws the initial grid and cursor position */
+    method void initialize(int cellSize, int width, int height) {
+        var int width, height, cellSize, i, j, l;
+        var Cell cell;
+        var Cell currentCell;
+        var Array rowOfCells;
+        let holdingKey = false;
+        let cellSize = cellSize;
+        let width = width;
+        let height = height;
+        let cols = width/cellSize;
+        let rows = height/cellSize;
+        let grid = Array.new(rows);
+
+        let i = 0;
+        do Screen.setColor(true);
+
+        while (i < rows) {
+            let j = 0;
+            let rowOfCells = Array.new(cols);
+            while (j < cols) {
+                let cell = Cell.new(j, i, cellSize);
+                let rowOfCells[j] = cell;
+                do cell.show();
+                let j = j + 1;
+            }
+            let grid[i] = rowOfCells;
+            let i = i + 1;
+        }
+
+        let cursor = Cursor.new(cell);
+        return;
+    }
+    /** Redraws the cursor in a new cell, in a offset from the current cursor cell */
+    method void redrawCursor(int rowOffset, int columnOffset) {
+        var int cursorColumn, cursorRow;
+        var Array row;
+        var Cell newCurrentCell;
+
+        let cursorColumn = cursor.getCurrentColumn();
+        let cursorRow = cursor.getCurrentRow();
+        let cursorRow = cursorRow + rowOffset;
+        let cursorColumn = cursorColumn + columnOffset;
+        
+        if ((cursorRow < 0) | (cursorColumn = cols) | (cursorColumn < 0) | (cursorRow = rows)) {
+            return;
+        }
+
+        let row = grid[cursorRow];
+        let newCurrentCell = row[cursorColumn];
+        do cursor.moveToCell(newCurrentCell);  
+
+        let row = grid[cursorRow - rowOffset];
+        let newCurrentCell = row[cursorColumn - columnOffset];
+        do newCurrentCell.show();
+        return;
+    }
+
+    /** Marks the current cursor cell as filled */
+    method void fillCurrentCell() {
+        var int cursorColumn, cursorRow;
+        var Array row;
+        var Cell currentCell;
+
+        let cursorColumn = cursor.getCurrentColumn();
+        let cursorRow = cursor.getCurrentRow();
+        let row = grid[cursorRow];
+        let currentCell = row[cursorColumn];
+        do currentCell.fill();
+        return;
+    }
+
+    method void executeGameCommand() {
+        if (command = 1) { 
+            do redrawCursor(-1, 0);
+        }
+        if (command = 2) { 
+            do redrawCursor(1, 0);
+
+        }
+        if (command = 3) {
+            do redrawCursor(0, -1);
+        }
+        if (command = 4) {
+            do redrawCursor(0, 1);
+        }
+        if (command = 5) {
+            do fillCurrentCell();
+        }
+       return;
+   }
+
+    /** Runs the game: handles the user's inputs and moves the cursor accordingly */
+   method void run() {
+       var char key;  // the key currently pressed by the user
+       var boolean exit;
+       let exit = false;
+      
+       while (~exit) {
+          // waits for a key to be pressed
+          let key = Keyboard.keyPressed();
+          if (key = 0) { let holdingKey = false; let command = 0; }
+
+          if (key = 81)  { let exit = true; }   // q key
+          if (key = 131) { let command = 1; }   // up arrow
+          if (key = 133) { let command = 2; }   // up arrow
+          if (key = 130) { let command = 3; }   // left arrow
+          if (key = 132) { let command = 4; }   // right arrow
+          if (key = 32)  { let command = 5; }    // space bar
+
+         // waits for the key to be released
+          if (~(key = 0) & ~(holdingKey)) {
+              let holdingKey = true;
+              do executeGameCommand();
+              let command = 0;
+          }
+      }
+      return;
+   }
+   
+   method void dispose() {
+       var int i, j;
+       var Array rowOfCells;
+       var Cell currentCell;
+
+       let i = 0;
+       let j = 0;
+       
+       do cursor.dispose();
+
+       while (i < rows) {
+           let j = 0;
+           let rowOfCells = grid[i];
+           while (j < cols) {
+               let currentCell = rowOfCells[j];
+               do currentCell.dispose();
+               let j = j + 1;
+            }
+            do rowOfCells.dispose();
+            let i = i + 1;
+        }
+        do grid.dispose();
+        do Memory.deAlloc(this);
+       return;
+   }
+}

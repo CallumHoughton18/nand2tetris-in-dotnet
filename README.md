@@ -39,6 +39,10 @@ Build the HackVMTranslator project in release mode, you can then use the generat
 As this is a learning exercise getting something correct and passing the nand2tetris test files was the main focus,
 rather than performance. So there may well be a few bottle necks if you run extremely large .vm files.
 
+## Grid Drawer in Jack
+
+In the `GridDrawerInJack` directory there are some Jack files which can be compiled and ran in the VM Emulator. This application draws a grid on the screen and allows the user to move the cursor with the arrow keys and fill cells to create drawings.
+
 ### Tests
 
 As the assembly generated can vary greatly but still be a correct translation the integration tests purely checks if the vm file
