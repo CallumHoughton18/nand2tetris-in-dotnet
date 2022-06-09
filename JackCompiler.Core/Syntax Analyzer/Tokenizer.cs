@@ -16,7 +16,6 @@ public enum TokenType
 }
 public class Tokenizer
 {
-    private Dictionary<string, Func<string, XmlElement>> _tokens = new();
     private readonly string [] _keywords =
     {
         "class", "constructor", "function", "method", "field", "static", "var", "int",
@@ -39,14 +38,8 @@ public class Tokenizer
     {
         _root = _tokenizerDocument.CreateElement(string.Empty, "tokens", string.Empty);
         _tokenizerDocument.AppendChild(_root);
-        InitializeTokenDefinitions();
     }
-
-    private void InitializeTokenDefinitions()
-    {
-        _tokens["keyword"] = s => CreateXmlElement("keyword", s);
-        _tokens["symbol"] = s => CreateXmlElement("symbol", s);
-    }
+    
 
     public bool ParseTokensFromLine(string line)
     {
