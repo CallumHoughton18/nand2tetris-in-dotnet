@@ -5,16 +5,7 @@ using System.Xml.Linq;
 
 namespace JackCompiler.Core.Syntax_Analyzer;
 
-public enum TokenType
-{
-    UNDEFINED,
-    KEYWORD,
-    SYMBOL,
-    STRING_CONST,
-    INTEGER_CONST,
-    IDENTIFER
-}
-public class Tokenizer
+sealed class Tokenizer
 {
     private readonly string [] _keywords =
     {
@@ -29,61 +20,30 @@ public class Tokenizer
         "|", "&lt;", "&gt;", "=", "~"
     };
 
-    private XmlDocument _tokenizerDocument = new();
-    private XmlElement _root;
+    public List<Token> Tokens { get; } = new();
 
-    public string DocumentText => XElement.Parse(_tokenizerDocument.OuterXml).ToString();
-
-    public Tokenizer()
+    public IEnumerable<Token> ParseTokensFromLine(string line)
     {
-        _root = _tokenizerDocument.CreateElement(string.Empty, "tokens", string.Empty);
-        _tokenizerDocument.AppendChild(_root);
-    }
-    
-
-    public bool ParseTokensFromLine(string line)
-    {
+        List<Token> tokens = new();
         line = Regex.Replace(line, @"\s+", " ").Trim();
 
         for (int i = 0; i < line.Length;)
         {
-            var (value, type, newI) = GetTokenFromText(line, i);
-
-            switch (type)
+            var (token, newI) = GetTokenFromText(line, i);
+            if (token.TokenType == TokenType.UNDEFINED)
             {
-                case TokenType.UNDEFINED:
-                    break;
-                case TokenType.KEYWORD:
-                    var keyToken = CreateXmlElement("keyword", value);
-                    _root.AppendChild(keyToken); 
-                    break;
-                case TokenType.SYMBOL:
-                    var symToken = CreateXmlElement("symbol", value);
-                    _root.AppendChild(symToken); 
-                    break;
-                case TokenType.STRING_CONST:
-                    var strToken = CreateXmlElement("stringConstant", value);
-                    _root.AppendChild(strToken); 
-                    break;
-                case TokenType.INTEGER_CONST:
-                    var intToken = CreateXmlElement("integerConstant", value);
-                    _root.AppendChild(intToken); 
-                    break;
-                case TokenType.IDENTIFER:
-                    var identToken = CreateXmlElement("identifier", value);
-                    _root.AppendChild(identToken); 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                throw new InvalidDataException($"line: \"{line}\" contains an invalid token");
             }
             
+            tokens.Add(token);
             i = newI;
         }
         
-        return true;
+        Tokens.AddRange(tokens);
+        return tokens;
     }
 
-    private (string, TokenType, int) GetTokenFromText(string text, int beginningIndex)
+    private (Token, int) GetTokenFromText(string text, int beginningIndex)
     {
         var tokenType = TokenType.UNDEFINED;
         var tokenValue = "";
@@ -98,7 +58,7 @@ public class Tokenizer
                 var startIndex = i + 1;
                 var nextOccurance = text.IndexOf('"', startIndex);
                 returnIndex  = nextOccurance + 1;
-                var length = (nextOccurance - (i + 1)) - 1;
+                var length = nextOccurance - startIndex;
                 tokenValue = text.Substring(startIndex ,  length);
                 break;
             }
@@ -106,7 +66,11 @@ public class Tokenizer
             {
                 tokenType = TokenType.INTEGER_CONST;
                 var startIndex = i + 1;
-                var nextOccurance = text.IndexOf(';', startIndex);
+                var nextOccurance = _symbols
+                    .Select(x => text.IndexOf((string)x, startIndex))
+                    .Where(y => y > -1)
+                    .Min(z => z);
+                //var nextOccurance = text.IndexOf(';', startIndex);
                 returnIndex  = nextOccurance;
                 var length = nextOccurance - i;
                 tokenValue = text.Substring(i ,  length);
@@ -145,20 +109,13 @@ public class Tokenizer
                 {
                     returnIndex = i + 1;
                     tokenValue = potentialToken;
-                    tokenType = TokenType.IDENTIFER;
+                    tokenType = TokenType.IDENTIFIER;
                     break;
                 }
             }
         }
 
-        return (tokenValue, tokenType, returnIndex);
-    }
-    
-    private XmlElement CreateXmlElement(string localName, string value)
-    {
-        var node = _tokenizerDocument.CreateElement(string.Empty, localName, string.Empty);
-        var text = _tokenizerDocument.CreateTextNode(value);
-        node.AppendChild(text);
-        return node;
+        
+        return (new Token(tokenValue, tokenType), returnIndex);
     }
 }

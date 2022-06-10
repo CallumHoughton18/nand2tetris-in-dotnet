@@ -4,11 +4,13 @@ public class JackCompilerRunner
 { 
     private readonly string _vmCodeLocation;
     private readonly string _outPath;
+    private readonly bool _writeOutTokenizerOutput;
 
-    public JackCompilerRunner(string vmCodeLocation, string outPath)
+    public JackCompilerRunner(string vmCodeLocation, string outPath, bool writeOutTokenizerOutput)
     {
         _vmCodeLocation = vmCodeLocation;
         _outPath = outPath;
+        _writeOutTokenizerOutput = writeOutTokenizerOutput;
     }
 
     public string Run()
@@ -17,7 +19,7 @@ public class JackCompilerRunner
 
         foreach (var vmFile in vmFilePaths)
         {
-            var runner = new JackToVmConverter(vmFile, _outPath);
+            var runner = new JackToVmConverter(vmFile, _outPath, _writeOutTokenizerOutput);
             runner.Run();
         }
 

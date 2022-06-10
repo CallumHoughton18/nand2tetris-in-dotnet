@@ -1,20 +1,50 @@
 using System.Text.RegularExpressions;
+using System.Xml;
 using JackCompiler.Core.Syntax_Analyzer;
 
 namespace JackCompiler.Core;
 
-public class JackCompiler
+sealed class JackCompiler
 {
-    readonly string[] _commentStrings =
+    private readonly string[] _inlineCommentStrings =
     {
         "//",
-        "/**"
     };
 
-    private Tokenizer _tokenizer = new();
+    private readonly string[] _startOfLineCommentStrings =
+    {
+        "/**",
+        "*"
+    };
+
+    private readonly List<string> _allCommentStrings = new();
+
+
+    private readonly Tokenizer _tokenizer = new();
 
     public JackCompiler()
     {
+        _allCommentStrings.AddRange(_inlineCommentStrings);
+        _allCommentStrings.AddRange(_startOfLineCommentStrings);
+    }
+  
+    public IList<Token> GenerateTokens(StreamReader streamReader)
+    {
+        string? line;
+        int index = 0;
+        while (!streamReader.EndOfStream)
+        {
+            line = streamReader.ReadLine()?.Trim();
+            if (string.IsNullOrWhiteSpace(line) || _allCommentStrings.Any(x => line.StartsWith(x))) continue;
+            line = line?.Split(_inlineCommentStrings, StringSplitOptions.RemoveEmptyEntries)[0];
+
+            _tokenizer.ParseTokensFromLine(line);
+            
+            index++;
+            
+        }
+
+        return _tokenizer.Tokens;
     }
 
     public void ConvertToVmCode(StreamReader streamReader, StreamWriter streamWriter)
@@ -24,15 +54,13 @@ public class JackCompiler
         while (!streamReader.EndOfStream)
         {
             line = streamReader.ReadLine()?.Trim();
-            if (string.IsNullOrWhiteSpace(line) || _commentStrings.Any(x => line.StartsWith(x))) continue;
-            line = line?.Split(_commentStrings, StringSplitOptions.RemoveEmptyEntries)[0];
+            if (string.IsNullOrWhiteSpace(line) || _inlineCommentStrings.Any(x => line.StartsWith(x))) continue;
+            line = line?.Split(_inlineCommentStrings, StringSplitOptions.RemoveEmptyEntries)[0];
 
             _tokenizer.ParseTokensFromLine(line);
             
             index++;
             
         }
-        
-        streamWriter.Write(_tokenizer.DocumentText);
     }
 }
