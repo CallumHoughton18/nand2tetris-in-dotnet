@@ -1,5 +1,6 @@
 using System.Xml;
 using System.Xml.Linq;
+using JackCompiler.Core.Parser.Grammar;
 using JackCompiler.Core.Syntax_Analyzer;
 
 namespace JackCompiler.Core;
@@ -30,8 +31,13 @@ public class JackToVmConverter
             using var tokenDocumentWriter = new StreamWriter(tokenizerOutputPath, append: false);
             GenerateTokenXml(generatedTokens, tokenDocumentWriter);
         }
-        
-        //compiler.ConvertToVmCode(new StreamReader(reader), writer);
+
+        // var tree = compiler.GenerateParsedJackCode(generatedTokens);
+        // var treeToXml = new ParserTreeToXmlDocument(tree);
+        // var doc = treeToXml.ToXml();
+        //
+        // var xmlText = XElement.Parse(doc.OuterXml).ToString();
+        // writer.Write(xmlText);
         return _outPath;
     }
 

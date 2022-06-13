@@ -5,7 +5,7 @@ using Xunit;
 
 namespace JackCompiler.Core.Tests;
 
-public class JackCompilerRunnerIntegrationTests
+public class JackCompilerRunnerTokenizerTests
 {
     [Theory]
     [InlineData("./Test Input Files/ArrayTest/Main.jack", "./Expected Output Files/ArrayTest/MainT.xml")]

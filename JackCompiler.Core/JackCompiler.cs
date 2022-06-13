@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
 using System.Xml;
+using JackCompiler.Core.Parser;
+using JackCompiler.Core.Parser.Grammar;
 using JackCompiler.Core.Syntax_Analyzer;
 
 namespace JackCompiler.Core;
@@ -47,20 +49,9 @@ sealed class JackCompiler
         return _tokenizer.Tokens;
     }
 
-    public void ConvertToVmCode(StreamReader streamReader, StreamWriter streamWriter)
+    public ParserTree GenerateParsedJackCode(IList<Token> tokens)
     {
-        string? line;
-        int index = 0;
-        while (!streamReader.EndOfStream)
-        {
-            line = streamReader.ReadLine()?.Trim();
-            if (string.IsNullOrWhiteSpace(line) || _inlineCommentStrings.Any(x => line.StartsWith(x))) continue;
-            line = line?.Split(_inlineCommentStrings, StringSplitOptions.RemoveEmptyEntries)[0];
-
-            _tokenizer.ParseTokensFromLine(line);
-            
-            index++;
-            
-        }
+        var parser = new JackParser(tokens);
+        return parser.ParseTokens();
     }
 }
