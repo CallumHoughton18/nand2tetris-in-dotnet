@@ -20,8 +20,11 @@ sealed class ParserTree
             Root = node;
             CurrentNode = node;
         }
-        CurrentNode?.Nodes.Add(node);
-        CurrentNode = node;
+        else
+        {
+            CurrentNode?.Nodes.Add(node);
+            CurrentNode = node;
+        }
     }
 
     public void SetCurrentNodeToPrevious()

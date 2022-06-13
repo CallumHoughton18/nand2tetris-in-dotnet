@@ -16,10 +16,11 @@ sealed class JackParser
     {
         var parserTree = new ParserTree();
 
-        // TODO: just testing the nesting here to make sure it's right before implementing the grammar properly
+
+
         foreach (var token in _tokens)
         {
-            if (token.TokenValue == "class" && parserTree.CurrentNode.Name != "class")
+            if (token.TokenValue == "class" && parserTree.CurrentNode?.Name != "class")
             {
                 parserTree.AddNoneTerminalNodeAndAdvance(new NoneTerminalNode(parserTree.CurrentNode, "class"));
             }
@@ -27,8 +28,20 @@ sealed class JackParser
             {
                 parserTree.SetCurrentNodeToPrevious();
             }
-
+            
+            if (token.TokenValue == "function" && parserTree.CurrentNode?.Name != "subRoutineDec")
+            {
+                parserTree.AddNoneTerminalNodeAndAdvance(new NoneTerminalNode(parserTree.CurrentNode, "subRoutineDec"));
+            }
+            if (parserTree.CurrentNode?.Name == "subRoutineDec" && token.TokenValue == "}")
+            {
+                parserTree.SetCurrentNodeToPrevious();
+            }
+            
+            //TODO: need to add these terminal ones to the correct current section, which is being reset above
             parserTree.AddTerminalNode(new TerminalNode(parserTree.CurrentNode, token));
+
+            
         }
         return parserTree;
     }
