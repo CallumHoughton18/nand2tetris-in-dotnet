@@ -26,6 +26,12 @@ sealed class ParserTree
             CurrentNode = node;
         }
     }
+    
+    public void AddNoneTerminalNodeAndAdvance(string nodeValue)
+    {
+        var node = new NoneTerminalNode(CurrentNode, nodeValue);
+        AddNoneTerminalNodeAndAdvance(node);
+    }
 
     public void SetCurrentNodeToPrevious()
     {

@@ -51,7 +51,7 @@ sealed class JackCompiler
 
     public ParserTree GenerateParsedJackCode(IList<Token> tokens)
     {
-        var parser = new JackParser(tokens);
-        return parser.ParseTokens();
+        var parser = new CompilationEngine(tokens);
+        return parser.CompileClass();
     }
 }
