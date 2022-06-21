@@ -4,6 +4,7 @@ using Xunit;
 
 namespace JackCompiler.Core.Tests;
 
+[Collection("Compiler XML output tests")]
 public class JackCompilerRunnerParserTests
 {
     [Theory]
@@ -19,7 +20,7 @@ public class JackCompilerRunnerParserTests
     {
         var tokenizerOutputPath = GenParserXmlFile(inputFilePath);
         Assert.True(File.Exists(tokenizerOutputPath));
-        AssertFilesAreEqualWithoutWhitespace(tokenizerOutputPath, expectedOutputFile);
+        TestHelpers.AssertFilesAreEqualWithoutWhitespace(tokenizerOutputPath, expectedOutputFile);
     }
 
     private string GenParserXmlFile(string inputFilePath)
@@ -30,19 +31,5 @@ public class JackCompilerRunnerParserTests
         var sut = new JackCompilerRunner(inputFilePath, outputFile, true);
         var outputPath = sut.Run();
         return outputPath;
-    }
-    
-    private void AssertFilesAreEqualWithoutWhitespace(string actualFile, string expectedFile)
-    {
-        var expectedOutputLines = File.ReadAllLines(expectedFile);
-        var actualOutputLines = File.ReadAllLines(actualFile);
-        
-        Assert.True(expectedOutputLines.Length == actualOutputLines.Length);
-        for (int i = 0; i < expectedOutputLines.Length; i++)
-        {
-            var expectedOutputLine = Regex.Replace(expectedOutputLines[i], @"\s+", ""); ;
-            var actualOutputLine = Regex.Replace(actualOutputLines[i], @"\s+", "");
-            Assert.True(expectedOutputLine == actualOutputLine, $"Mismatch on on line {i+1}");
-        }
     }
 }

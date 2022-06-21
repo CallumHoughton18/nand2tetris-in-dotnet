@@ -39,10 +39,6 @@ Build the HackVMTranslator project in release mode, you can then use the generat
 As this is a learning exercise getting something correct and passing the nand2tetris test files was the main focus,
 rather than performance. So there may well be a few bottle necks if you run extremely large .vm files.
 
-## Grid Drawer in Jack
-
-In the `GridDrawerInJack` directory there are some Jack files which can be compiled and ran in the VM Emulator. This application draws a grid on the screen and allows the user to move the cursor with the arrow keys and fill cells to create drawings.
-
 ### Tests
 
 As the assembly generated can vary greatly but still be a correct translation the integration tests purely checks if the vm file
@@ -54,3 +50,24 @@ So as an example, the `BasicTest.vm` translation test, when running the test in 
 
 Not the best solution, but it works well enough to use against their test files which is how they expect you to test the generated .asm files anyway
 
+## Grid Drawer in Jack
+
+In the `GridDrawerInJack` directory there are some Jack files which can be compiled and ran in the VM Emulator. This application draws a grid on the screen and allows the user to move the cursor with the arrow keys and fill cells to create drawings.
+
+## JackCompiler in C#
+
+Currently, the first half of the compiler is complete, so the compiler outputs the correct XML for the tokenizer and CompilationEngine.
+
+### Considerations
+
+As described in the nand2tetris course, the compiler is wrote ASSUMING the Jack input file is syntactically correct. As a lot more considerations
+would need to be added to do error handling gracefully, which is outside the scope of the course. I've added some minor error handling for when the input is
+massively off.
+
+This implementation of the compiler is also not reliant on the XML data format. Instead, the internal data structures, a token list and a parser tree, are able to 
+be outputted as XML to run tests that validate the output.
+
+### Tests
+
+Tests for the compiler can be found in the JackCompiler.Core.Tests project. The tests assert that the generated XML
+is equivalent to the expected XML files provided by the nand2tetris course, ignoring whitespace.

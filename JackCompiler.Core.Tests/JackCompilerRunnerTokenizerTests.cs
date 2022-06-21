@@ -5,6 +5,7 @@ using Xunit;
 
 namespace JackCompiler.Core.Tests;
 
+[Collection("Compiler XML output tests")]
 public class JackCompilerRunnerTokenizerTests
 {
     [Theory]
@@ -18,12 +19,11 @@ public class JackCompilerRunnerTokenizerTests
     public void Should_Give_Correct_Tokenizer_Output(string inputFilePath, string expectedOutputFilePath)
     {
         var tokenizerOutputPath = AssertTokenizerFileGenerated(inputFilePath);
-        AssertFilesAreEqualWithoutWhitespace(tokenizerOutputPath, expectedOutputFilePath);
+        TestHelpers.AssertFilesAreEqualWithoutWhitespace(tokenizerOutputPath, expectedOutputFilePath);
     }
 
     private string AssertTokenizerFileGenerated(string inputFilePath)
     {
-        
         var outputFileName = $"{Path.GetFileNameWithoutExtension(inputFilePath)}.xml";
         var outputFile = Path.Combine(Path.GetDirectoryName(inputFilePath)!, outputFileName);
         var sut = new JackCompilerRunner(inputFilePath, outputFile, true);
@@ -31,19 +31,5 @@ public class JackCompilerRunnerTokenizerTests
         var tokenizerPath = Utils.AppendStringToFileName(outputFile, "T");
         Assert.True(File.Exists(tokenizerPath));
         return tokenizerPath;
-    }
-    
-    private void AssertFilesAreEqualWithoutWhitespace(string actualFile, string expectedFile)
-    {
-        var expectedOutputLines = File.ReadAllLines(expectedFile);
-        var actualOutputLines = File.ReadAllLines(actualFile);
-        
-        Assert.True(expectedOutputLines.Length == actualOutputLines.Length);
-        for (int i = 0; i < expectedOutputLines.Length; i++)
-        {
-            var expectedOutputLine = Regex.Replace(expectedOutputLines[i], @"\s+", ""); ;
-            var actualOutputLine = Regex.Replace(actualOutputLines[i], @"\s+", "");
-            Assert.True(expectedOutputLine == actualOutputLine, $"Mismatch on on line {i+1}");
-        }
     }
 } 
