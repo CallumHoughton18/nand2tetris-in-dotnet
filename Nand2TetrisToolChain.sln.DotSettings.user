@@ -12,5 +12,11 @@
     &lt;TestId&gt;xUnit::A2ED3159-AD81-457A-8D3F-FD67E0121A3A::net6.0::HackAssembler.Core.Tests.ParserTests&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::326BD969-0113-47BD-80E2-50D8FEB5515C::net6.0::HackVMTranslator.Core.Tests.HackVmTranslatorRunnerIntegrationTests.Should_Give_Correct_Output_For_Asm_Without_Symbols&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::326BD969-0113-47BD-80E2-50D8FEB5515C::net6.0::HackVMTranslator.Core.Tests.HackVmTranslatorRunnerIntegrationTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.UnitTest1.Should_Give_Correct_Output_For_Asm_Without_Symbols&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.UnitTest1.Should_Give_Correct_Tokenizer_Output&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerIntegrationTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerParserTests.Should_Give_Correct_Tokenizer_Output&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerTokenizerTests.Should_Give_Correct_Tokenizer_Output&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerParserTests.Should_Give_Correct_Compiler_Output&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
