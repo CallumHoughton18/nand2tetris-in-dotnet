@@ -27,12 +27,24 @@ sealed class ParserTreeToXmlDocument
 
         if (terminalNode is not null)
         {
+            var nodeLocalName = terminalNode.Token.TokenType switch
+            {
+                TokenType.UNDEFINED => "UNDEFINED",
+                TokenType.KEYWORD => "keyword",
+                TokenType.SYMBOL => "symbol",
+                TokenType.STRING_CONST => "stringConstant",
+                TokenType.INTEGER_CONST => "integerConstant",
+                TokenType.IDENTIFIER => "identifier",
+                _ => throw new ArgumentOutOfRangeException()
+            };
             var terminalEle =
-                currentElement.AppendChild(document.CreateXmlElement("terminal", terminalNode.Token.TokenValue));
+                currentElement.AppendChild(document.CreateXmlElement(nodeLocalName, terminalNode.Token.TokenValue));
         }
         else
         {
             var section = document.CreateElement(string.Empty, noneTerminalNode.Name, string.Empty);
+            section.IsEmpty = false;
+            
             if (currentElement is null)
             {
                 document.AppendChild(section);

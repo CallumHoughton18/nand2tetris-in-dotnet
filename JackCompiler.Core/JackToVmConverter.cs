@@ -35,9 +35,17 @@ public class JackToVmConverter
         var tree = compiler.GenerateParsedJackCode(generatedTokens);
         var treeToXml = new ParserTreeToXmlDocument(tree);
         var doc = treeToXml.ToXml();
+        doc.Save(writer);
         
-        var xmlText = XElement.Parse(doc.OuterXml).ToString();
-        writer.Write(xmlText);
+        // This is required as doc.Save adds some xml metadata tag to the document
+        // BUT we also need the empty parent tags to be on two lines
+        // none of the xml serialization methods have cases for both of these requirements, so the fix is just
+        // load the file back in and remove the first line :/
+        var lines = File.ReadAllLines(_outPath);
+        File.WriteAllLines(_outPath, lines.Skip(1).ToArray());
+        
+        // var xmlText = XElement.Parse(doc.OuterXml).ToString();
+        // writer.Write(xmlText);
         return _outPath;
     }
 

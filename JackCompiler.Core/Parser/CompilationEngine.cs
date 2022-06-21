@@ -10,6 +10,10 @@ sealed class CompilationEngine
     private readonly IList<Token> _tokens;
     private readonly ParserTree _parserTree = new();
 
+    private readonly string[] _binaryOperators = { "+", "-", "*", "/", "|", "=", "<", ">", "&" };
+    private readonly string[] _unaryOperators = { "-", "~" };
+    private readonly string[] _keyWordConstants = { "true", "false", "null", "this" };
+
     public CompilationEngine(IList<Token> tokens)
     {
         _tokens = tokens;
@@ -34,7 +38,7 @@ sealed class CompilationEngine
         {
             CompileSubRoutine();
         }
-        
+
         AdvanceAndAddTerminal();
         return _parserTree;
     }
@@ -44,17 +48,17 @@ sealed class CompilationEngine
         while (HasClassVarDec())
         {
             AddNoneTerminalSection("classVarDec");
-        
+
             AdvanceAndAddTerminal(); // static or field
             AdvanceAndAddTerminal(); // var type
             AdvanceAndAddTerminal(); // var name
-        
+
             while (NextTokenValueIs(","))
             {
                 AdvanceAndAddTerminal(); // the ',' character
                 AdvanceAndAddTerminal(); // var name
             }
-        
+
             AdvanceAndAddTerminal(); // end of classVarDec, so ';' character
             EndOfNoneTerminalSection();
         }
@@ -67,13 +71,13 @@ sealed class CompilationEngine
         AdvanceAndAddTerminal(); // subroutine return type or constructor
         AdvanceAndAddTerminal(); // subroutine name 
         AdvanceAndAddTerminal(); // '('
-        
+
         CompileParametersList();
-        
+
         AdvanceAndAddTerminal(); // ')'
-        
+
         CompileSubRoutineBody();
-        
+
         EndOfNoneTerminalSection();
     }
 
@@ -89,7 +93,7 @@ sealed class CompilationEngine
                 AdvanceAndAddTerminal(); // add ','
             }
         }
-        
+
         EndOfNoneTerminalSection();
     }
 
@@ -103,7 +107,7 @@ sealed class CompilationEngine
         }
 
         CompileStatements();
-        
+
         AdvanceAndAddTerminal(); // '}'
         EndOfNoneTerminalSection();
     }
@@ -120,7 +124,7 @@ sealed class CompilationEngine
             AdvanceAndAddTerminal(); // , symbol
             AdvanceAndAddTerminal(); // var name
         }
-        
+
         AdvanceAndAddTerminal(); // ; symbol
         EndOfNoneTerminalSection();
     }
@@ -146,18 +150,18 @@ sealed class CompilationEngine
                     CompileDoStatement();
                     break;
                 case "return":
-                    CompileReturn();
+                    CompileReturnStatement();
                     break;
             }
         }
-        
+
         EndOfNoneTerminalSection();
     }
 
     private void CompileLetStatement()
     {
         AddNoneTerminalSection("letStatement");
-        
+
         AdvanceAndAddTerminal(); // let keyword
         AdvanceAndAddTerminal(); // varName
 
@@ -167,39 +171,172 @@ sealed class CompilationEngine
             CompileExpression();
             AdvanceAndAddTerminal(); // ]
         }
+
         AdvanceAndAddTerminal(); // = 
 
         CompileExpression();
         AdvanceAndAddTerminal(); // ;
-        
+
         EndOfNoneTerminalSection();
-        
     }
 
     private void CompileIfStatement()
     {
         AddNoneTerminalSection("ifStatement");
-        
+
         AdvanceAndAddTerminal(); // if keyword
+
+        AdvanceAndAddTerminal(); // (
+        CompileExpression();
+        AdvanceAndAddTerminal(); // )
+
+        AdvanceAndAddTerminal(); // {
+        CompileStatements();
+        AdvanceAndAddTerminal(); // }
+
+        if (NextTokenValueIs("else"))
+        {
+            AdvanceAndAddTerminal(); // else
+
+            AdvanceAndAddTerminal(); // {
+            CompileStatements();
+            AdvanceAndAddTerminal(); // }
+        }
+
+        EndOfNoneTerminalSection();
+    }
+
+    private void CompileWhileStatement()
+    {
+        AddNoneTerminalSection("whileStatement");
         
+        AdvanceAndAddTerminal(); // while
         AdvanceAndAddTerminal(); // (
         CompileExpression();
         AdvanceAndAddTerminal(); // )
         
         AdvanceAndAddTerminal(); // {
-         CompileStatements();
-         AdvanceAndAddTerminal(); // }
+        CompileStatements(); 
+        AdvanceAndAddTerminal(); // }
+        
+        EndOfNoneTerminalSection();
+    }
 
-        if (NextTokenValueIs("else"))
+    private void CompileDoStatement()
+    {
+        AddNoneTerminalSection("doStatement");
+        AdvanceAndAddTerminal(); // do
+        // subroutineCall
+        AdvanceAndAddTerminal(); // class or var name
+        if (NextTokenValueIs("."))
         {
-            AdvanceAndAddTerminal(); // else
-            
-            AdvanceAndAddTerminal(); // {
-            CompileStatements();
-            AdvanceAndAddTerminal(); // }
+            AdvanceAndAddTerminal(); // . symbol
+            AdvanceAndAddTerminal(); // subroutine name
+        }
+        
+        AdvanceAndAddTerminal(); // (
+        CompileExpressionList();
+        AdvanceAndAddTerminal(); // )
+        
+        AdvanceAndAddTerminal(); // ;
+        EndOfNoneTerminalSection();
+    }
+
+    private void CompileReturnStatement()
+    {
+        AddNoneTerminalSection("returnStatement");
+        AdvanceAndAddTerminal(); // return keyword
+        if (HasExpression())
+        {
+            CompileExpression();
+        }
+        AdvanceAndAddTerminal(); // ;
+        EndOfNoneTerminalSection();
+    }
+
+    private void CompileExpression()
+    {
+        AddNoneTerminalSection("expression"); 
+        CompileTerm();
+        while (_binaryOperators.Any(NextTokenValueIs))
+        {
+            AdvanceAndAddTerminal(); // op symbol
+            CompileTerm();
+        }
+
+        EndOfNoneTerminalSection();
+    }
+
+    private void CompileTerm()
+    {
+        AddNoneTerminalSection("term");
+
+        if (NextTokenTypeIs(TokenType.STRING_CONST, TokenType.INTEGER_CONST) || _keyWordConstants.Any(NextTokenValueIs))
+        {
+            AdvanceAndAddTerminal(); // constant val
+        }
+        else if (NextTokenTypeIs(TokenType.IDENTIFIER))
+        {
+            AdvanceAndAddTerminal(); // class name or var name
+            switch (CurrentToken.TokenValue)
+            {
+                case "[": // array access
+                    AdvanceAndAddTerminal(); // [
+                    CompileExpression();
+                    AdvanceAndAddTerminal(); // ]
+                    break;
+                case "(":
+                    AdvanceAndAddTerminal(); // (
+                    CompileExpressionList();
+                    AdvanceAndAddTerminal(); // )
+                    break;
+                case ".":
+                    AdvanceAndAddTerminal(); // .
+                    AdvanceAndAddTerminal(); // subroutine name
+                    AdvanceAndAddTerminal(); // (
+                    CompileExpressionList();
+                    AdvanceAndAddTerminal(); // )
+                    break;
+            }
+        }
+        else if (NextTokenValueIs("("))
+        {
+            AdvanceAndAddTerminal(); // (
+            CompileExpression();
+            AdvanceAndAddTerminal(); // )
+        }
+        else if (_unaryOperators.Any(NextTokenValueIs))
+        {
+            AdvanceAndAddTerminal(); // unary op symbol
+            CompileTerm();
         }
         
         EndOfNoneTerminalSection();
+    }
+
+    private void CompileExpressionList()
+    {
+        AddNoneTerminalSection("expressionList");
+        if (HasExpression())
+        {
+            CompileExpression();
+        }
+
+        while (NextTokenValueIs(","))
+        {
+            AdvanceAndAddTerminal(); // , symbol
+            CompileExpression();
+        }
+        
+        EndOfNoneTerminalSection();
+    }
+
+    private bool HasExpression()
+    {
+        return (NextTokenTypeIs(TokenType.INTEGER_CONST, TokenType.STRING_CONST, TokenType.IDENTIFIER)
+                || _unaryOperators.Any(NextTokenValueIs)
+                || _keyWordConstants.Any(NextTokenValueIs)
+                || NextTokenValueIs("("));
     }
 
     private bool HasStatement()
@@ -207,7 +344,7 @@ sealed class CompilationEngine
         var statmentValues = new[] { "do", "let", "if", "while", "return" };
         return statmentValues.Any(NextTokenValueIs);
     }
-    
+
     public bool HasClassVarDec()
     {
         return NextTokenValueIs("static") || NextTokenValueIs("field");
@@ -223,11 +360,11 @@ sealed class CompilationEngine
         var nextToken = _tokens[_index];
         return nextToken.TokenValue == value;
     }
-    
-    public bool NextTokenTypeIs(TokenType tokenType)
+
+    private bool NextTokenTypeIs(params TokenType[] tokenTypes)
     {
         var nextToken = _tokens[_index];
-        return nextToken.TokenType == tokenType;
+        return tokenTypes.Any(x => nextToken.TokenType == x);
     }
 
     private void AdvanceAndAddTerminal()
