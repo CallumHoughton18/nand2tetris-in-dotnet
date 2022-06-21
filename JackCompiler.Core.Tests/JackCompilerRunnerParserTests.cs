@@ -18,9 +18,9 @@ public class JackCompilerRunnerParserTests
     
     public void Should_Give_Correct_Compiler_Output(string inputFilePath, string expectedOutputFile)
     {
-        var tokenizerOutputPath = GenParserXmlFile(inputFilePath);
-        Assert.True(File.Exists(tokenizerOutputPath));
-        TestHelpers.AssertFilesAreEqualWithoutWhitespace(tokenizerOutputPath, expectedOutputFile);
+        var compilerXmlOutputPath = GenParserXmlFile(inputFilePath);
+        Assert.True(File.Exists(compilerXmlOutputPath));
+        TestHelpers.AssertFilesAreEqualWithoutWhitespace(compilerXmlOutputPath, expectedOutputFile);
     }
 
     private string GenParserXmlFile(string inputFilePath)

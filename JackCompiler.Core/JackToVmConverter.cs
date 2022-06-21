@@ -43,9 +43,7 @@ public class JackToVmConverter
         // load the file back in and remove the first line :/
         var lines = File.ReadAllLines(_outPath);
         File.WriteAllLines(_outPath, lines.Skip(1).ToArray());
-        
-        // var xmlText = XElement.Parse(doc.OuterXml).ToString();
-        // writer.Write(xmlText);
+
         return _outPath;
     }
 
