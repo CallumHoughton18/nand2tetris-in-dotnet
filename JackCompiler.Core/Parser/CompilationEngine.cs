@@ -1,4 +1,6 @@
+using JackCompiler.Core.Code_Writer;
 using JackCompiler.Core.Parser.Grammar;
+using JackCompiler.Core.Symbol_Table;
 using JackCompiler.Core.Syntax_Analyzer;
 
 namespace JackCompiler.Core.Parser;
@@ -7,27 +9,35 @@ sealed class CompilationEngine
 {
     public Token CurrentToken => _tokens[_index];
     private int _index = 0;
+    private int _counter = 0;
     private readonly IList<Token> _tokens;
-    private readonly ParserTree _parserTree = new();
+    private readonly VMWriter _writer;
 
     private readonly string[] _binaryOperators = { "+", "-", "*", "/", "|", "=", "<", ">", "&" };
     private readonly string[] _unaryOperators = { "-", "~" };
     private readonly string[] _keyWordConstants = { "true", "false", "null", "this" };
+    private readonly SymbolTable _symbolTable;
 
-    public CompilationEngine(IList<Token> tokens)
+    public CompilationEngine(IList<Token> tokens, VMWriter writer)
     {
         _tokens = tokens;
+        _writer = writer;
+        _symbolTable = new SymbolTable();
     }
 
-    public ParserTree CompileClass()
+    private int GetUniqueId()
+    {
+        _counter++;
+        return _counter;
+    }
+
+    public void CompileClass()
     {
         _index = 0;
         if (CurrentToken.TokenValue != "class") throw new InvalidDataException("First token is not a class");
 
-        AddNoneTerminalSection("class");
-        AdvanceAndAddTerminal();
-        AdvanceAndAddTerminal();
-        AdvanceAndAddTerminal();
+        var classToken = CurrentToken;
+        Advance(); // {
 
         if (HasClassVarDec())
         {
@@ -39,100 +49,110 @@ sealed class CompilationEngine
             CompileSubRoutine();
         }
 
-        AdvanceAndAddTerminal();
-        return _parserTree;
+        Advance(); // }
+        _writer.Close();
     }
 
     private void CompileClassVarDec()
     {
         while (HasClassVarDec())
         {
-            AddNoneTerminalSection("classVarDec");
-
-            AdvanceAndAddTerminal(); // static or field
-            AdvanceAndAddTerminal(); // var type
-            AdvanceAndAddTerminal(); // var name
+            var kind = EnumHelpers.FromString<SymbolKind>(Advance().TokenValue); // static or field
+            var type = Advance().TokenValue; // var type
+            var name = Advance().TokenValue; // var name
+            _symbolTable.Define(name, type, kind);
 
             while (NextTokenValueIs(","))
             {
-                AdvanceAndAddTerminal(); // the ',' character
-                AdvanceAndAddTerminal(); // var name
+                Advance(); // the ',' character
+                name = Advance().TokenValue; // var name
+                _symbolTable.Define(name, type, kind);
             }
 
-            AdvanceAndAddTerminal(); // end of classVarDec, so ';' character
-            EndOfNoneTerminalSection();
+            Advance(); // end of classVarDec, so ';' character
         }
     }
 
+    
     private void CompileSubRoutine()
     {
-        _parserTree.AddNoneTerminalNodeAndAdvance("subroutineDec");
-        AdvanceAndAddTerminal(); // subroutine type
-        AdvanceAndAddTerminal(); // subroutine return type or constructor
-        AdvanceAndAddTerminal(); // subroutine name 
-        AdvanceAndAddTerminal(); // '('
+        _symbolTable.StartSubRoutine();
+        var subroutineType = Advance().TokenValue; // subroutine type
+        Advance(); // subroutine return type or constructor
+        var subroutineName = Advance().TokenValue; // subroutine name 
+        Advance(); // '('
 
+        // you must pass in self as the first argument to a method.
+        if (subroutineType == "method") _symbolTable.Define("this", "self", SymbolKind.ARG);
         CompileParametersList();
 
-        AdvanceAndAddTerminal(); // ')'
+        Advance(); // ')'
 
-        CompileSubRoutineBody();
-
-        EndOfNoneTerminalSection();
+        CompileSubRoutineBody(subroutineName, subroutineType);
     }
 
     private void CompileParametersList()
     {
-        AddNoneTerminalSection("parameterList");
         while (!NextTokenTypeIs(TokenType.SYMBOL))
         {
-            AdvanceAndAddTerminal(); // param type
-            AdvanceAndAddTerminal(); // param name
+            var type = Advance().TokenValue; // param type
+            var name = Advance().TokenValue; // param name
+            _symbolTable.Define(name, type, SymbolKind.ARG);
             if (NextTokenValueIs(","))
             {
-                AdvanceAndAddTerminal(); // add ','
+                Advance(); // add ','
             }
         }
-
-        EndOfNoneTerminalSection();
     }
 
-    private void CompileSubRoutineBody()
+    private void CompileSubRoutineBody(string subroutineName, string subroutineType)
     {
-        AddNoneTerminalSection("subroutineBody");
-        AdvanceAndAddTerminal(); // '{'
+        Advance(); // '{'
         while (NextTokenValueIs("var"))
         {
             CompileVarDec();
         }
 
+        var nVars = _symbolTable.VarCount(SymbolKind.VAR);
+        _writer.WriteFunction(subroutineName, nVars);
+
+        if (subroutineType == "method")
+        {
+            _writer.WritePush(PushSegments.ARGUMENT, 0);
+            _writer.WritePop(PopSegments.POINTER, 0);
+        }
+        else if (subroutineType == "constructor")
+        {
+            var classLevelFields = _symbolTable.VarCount(SymbolKind.FIELD);
+            _writer.WritePush(PushSegments.CONSTANT, classLevelFields);
+            _writer.WriteCall("Memory.alloc", 1);
+            _writer.WritePop(PopSegments.POINTER, 0);
+        }
+        
         CompileStatements();
 
-        AdvanceAndAddTerminal(); // '}'
-        EndOfNoneTerminalSection();
+        Advance(); // '}'
     }
 
     private void CompileVarDec()
     {
-        AddNoneTerminalSection("varDec");
-        AdvanceAndAddTerminal(); // "var" keyword
-        AdvanceAndAddTerminal(); // var type
-        AdvanceAndAddTerminal(); // var name
+        var kind = EnumHelpers.FromString<SymbolKind>(Advance().TokenValue); // "var" keyword
+        var type = Advance().TokenValue; // var type
+        var name = Advance().TokenValue; // var name
+        _symbolTable.Define(name, type, kind);
 
         while (NextTokenValueIs(","))
         {
-            AdvanceAndAddTerminal(); // , symbol
-            AdvanceAndAddTerminal(); // var name
+            Advance(); // , symbol
+            name = Advance().TokenValue; // var name
+            _symbolTable.Define(name, type, kind);
         }
 
-        AdvanceAndAddTerminal(); // ; symbol
-        EndOfNoneTerminalSection();
+        Advance(); // ; symbol
     }
 
     private void CompileStatements()
     {
-        AddNoneTerminalSection("statements");
-
         while (HasStatement())
         {
             switch (CurrentToken.TokenValue)
@@ -154,160 +174,164 @@ sealed class CompilationEngine
                     break;
             }
         }
-
-        EndOfNoneTerminalSection();
     }
 
     private void CompileLetStatement()
     {
-        AddNoneTerminalSection("letStatement");
-
-        AdvanceAndAddTerminal(); // let keyword
-        AdvanceAndAddTerminal(); // varName
+        Advance(); // let keyword
+        Advance(); // varName
 
         if (NextTokenValueIs("["))
         {
-            AdvanceAndAddTerminal(); // [
+            Advance(); // [
             CompileExpression();
-            AdvanceAndAddTerminal(); // ]
+            Advance(); // ]
         }
 
-        AdvanceAndAddTerminal(); // = 
+        Advance(); // = 
 
         CompileExpression();
-        AdvanceAndAddTerminal(); // ;
-
-        EndOfNoneTerminalSection();
+        Advance(); // ;
     }
 
     private void CompileIfStatement()
     {
-        AddNoneTerminalSection("ifStatement");
-
-        AdvanceAndAddTerminal(); // if keyword
-
-        AdvanceAndAddTerminal(); // (
+        Advance(); // if keyword
+        Advance(); // (
         CompileExpression();
-        AdvanceAndAddTerminal(); // )
-
-        AdvanceAndAddTerminal(); // {
+        Advance(); // )
+        
+        var L1 = $"L1-{GetUniqueId()}";
+        var L2 = $"L2-{GetUniqueId()}";
+        
+        _writer.WriteArithmetic(ArithmeticCommands.NOT);
+        _writer.WriteIf(L1);
+        Advance(); // {
         CompileStatements();
-        AdvanceAndAddTerminal(); // }
+        _writer.WriteGoto(L2);
+        Advance(); // }
+        _writer.WriteLabel(L1);
 
         if (NextTokenValueIs("else"))
         {
-            AdvanceAndAddTerminal(); // else
-
-            AdvanceAndAddTerminal(); // {
+            Advance(); // else
+            Advance(); // {
             CompileStatements();
-            AdvanceAndAddTerminal(); // }
+            Advance(); // }
         }
-
-        EndOfNoneTerminalSection();
+        _writer.WriteLabel(L2);
     }
 
     private void CompileWhileStatement()
     {
-        AddNoneTerminalSection("whileStatement");
-        
-        AdvanceAndAddTerminal(); // while
-        AdvanceAndAddTerminal(); // (
+        var l1 = $"while-{GetUniqueId()}";
+        var l2 = $"while-{GetUniqueId()}";
+        _writer.WriteLabel(l1);
+        Advance(); // while
+        Advance(); // (
         CompileExpression();
-        AdvanceAndAddTerminal(); // )
+        Advance(); // )
         
-        AdvanceAndAddTerminal(); // {
+        _writer.WriteArithmetic(ArithmeticCommands.NOT);
+        _writer.WriteIf(l2);
+        Advance(); // {
         CompileStatements(); 
-        AdvanceAndAddTerminal(); // }
-        
-        EndOfNoneTerminalSection();
+        Advance(); // }
+        _writer.WriteGoto(l1);
+        _writer.WriteLabel(l2);
     }
 
     private void CompileDoStatement()
     {
-        AddNoneTerminalSection("doStatement");
-        AdvanceAndAddTerminal(); // do
+        Advance(); // do
         // subroutineCall
-        AdvanceAndAddTerminal(); // class or var name
+        var classOrVarName = Advance().TokenValue; // class or var name
         if (NextTokenValueIs("."))
         {
-            AdvanceAndAddTerminal(); // . symbol
-            AdvanceAndAddTerminal(); // subroutine name
+            Advance(); // . symbol
+            var subRoutineName = Advance().TokenValue; // subroutine name
+            if ()
         }
         
-        AdvanceAndAddTerminal(); // (
+        Advance(); // (
         CompileExpressionList();
-        AdvanceAndAddTerminal(); // )
+        Advance(); // )
         
-        AdvanceAndAddTerminal(); // ;
-        EndOfNoneTerminalSection();
+        Advance(); // ;
     }
 
     private void CompileReturnStatement()
     {
         AddNoneTerminalSection("returnStatement");
-        AdvanceAndAddTerminal(); // return keyword
+        Advance(); // return keyword
         if (HasExpression())
         {
             CompileExpression();
         }
-        AdvanceAndAddTerminal(); // ;
+        Advance(); // ;
         EndOfNoneTerminalSection();
     }
 
     private void CompileExpression()
     {
-        AddNoneTerminalSection("expression"); 
         CompileTerm();
+        
         while (_binaryOperators.Any(NextTokenValueIs))
         {
-            AdvanceAndAddTerminal(); // op symbol
+            var opSymbol = Advance().TokenValue; // op symbol
+            if (opSymbol == "+") _writer.WriteArithmetic(ArithmeticCommands.ADD);
+            else if (opSymbol == "-") _writer.WriteArithmetic(ArithmeticCommands.SUB);
+            else if (opSymbol == "*") _writer.WriteCall("Math.multiply", 2);
+            else if (opSymbol == "/") _writer.WriteCall("Math.divide", 2);
+            else if (opSymbol == "<") _writer.WriteArithmetic(ArithmeticCommands.LT);
+            else if (opSymbol == ">") _writer.WriteArithmetic(ArithmeticCommands.GT);
+            else if (opSymbol == "|") _writer.WriteArithmetic(ArithmeticCommands.OR);
+            else if (opSymbol == "&") _writer.WriteArithmetic(ArithmeticCommands.ADD);
+            else if (opSymbol == "=") _writer.WriteArithmetic(ArithmeticCommands.EQ);
+            
             CompileTerm();
         }
-
-        EndOfNoneTerminalSection();
     }
 
     private void CompileTerm()
     {
-        AddNoneTerminalSection("term");
-
         if (NextTokenTypeIs(TokenType.STRING_CONST, TokenType.INTEGER_CONST) || _keyWordConstants.Any(NextTokenValueIs))
         {
-            AdvanceAndAddTerminal(); // constant val
+            Advance(); // constant val
         }
         else if (NextTokenTypeIs(TokenType.IDENTIFIER))
         {
-            AdvanceAndAddTerminal(); // class name or var name
+            Advance(); // class name or var name
             switch (CurrentToken.TokenValue)
             {
                 case "[": // array access
-                    AdvanceAndAddTerminal(); // [
+                    Advance(); // [
                     CompileExpression();
-                    AdvanceAndAddTerminal(); // ]
+                    Advance(); // ]
                     break;
                 case "(":
-                    AdvanceAndAddTerminal(); // (
+                    Advance(); // (
                     CompileExpressionList();
-                    AdvanceAndAddTerminal(); // )
+                    Advance(); // )
                     break;
                 case ".":
-                    AdvanceAndAddTerminal(); // .
-                    AdvanceAndAddTerminal(); // subroutine name
-                    AdvanceAndAddTerminal(); // (
+                    Advance(); // .
+                    Advance(); // subroutine name
+                    Advance(); // (
                     CompileExpressionList();
-                    AdvanceAndAddTerminal(); // )
+                    Advance(); // )
                     break;
             }
         }
         else if (NextTokenValueIs("("))
         {
-            AdvanceAndAddTerminal(); // (
+            Advance(); // (
             CompileExpression();
-            AdvanceAndAddTerminal(); // )
+            Advance(); // )
         }
         else if (_unaryOperators.Any(NextTokenValueIs))
         {
-            AdvanceAndAddTerminal(); // unary op symbol
+            Advance(); // unary op symbol
             CompileTerm();
         }
         
@@ -324,7 +348,7 @@ sealed class CompilationEngine
 
         while (NextTokenValueIs(","))
         {
-            AdvanceAndAddTerminal(); // , symbol
+            Advance(); // , symbol
             CompileExpression();
         }
         
@@ -367,19 +391,9 @@ sealed class CompilationEngine
         return tokenTypes.Any(x => nextToken.TokenType == x);
     }
 
-    private void AdvanceAndAddTerminal()
+    private Token Advance()
     {
-        _parserTree.AddTerminalNode(new TerminalNode(_parserTree.CurrentNode, CurrentToken));
         _index++;
-    }
-
-    private void EndOfNoneTerminalSection()
-    {
-        _parserTree.SetCurrentNodeToPrevious();
-    }
-
-    private void AddNoneTerminalSection(string noneTerminalName)
-    {
-        _parserTree.AddNoneTerminalNodeAndAdvance(noneTerminalName);
+        return CurrentToken;
     }
 }
