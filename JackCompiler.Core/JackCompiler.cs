@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Xml;
+using JackCompiler.Core.Code_Writer;
 using JackCompiler.Core.Parser;
 using JackCompiler.Core.Parser.Grammar;
 using JackCompiler.Core.Syntax_Analyzer;
@@ -49,9 +50,9 @@ sealed class JackCompiler
         return _tokenizer.Tokens;
     }
 
-    public ParserTree GenerateParsedJackCode(IList<Token> tokens)
+    public void GeneratedVMCode(IList<Token> tokens, VMWriter vmWriter)
     {
-        var parser = new CompilationEngine(tokens);
-        return parser.CompileClass();
+        var parser = new CompilationEngine(tokens, vmWriter);
+        parser.CompileClass();
     }
 }

@@ -1,6 +1,6 @@
 namespace JackCompiler.Core.Symbol_Table;
 
-public class SymbolTable
+sealed class SymbolTable
 {
     // If a symbol is not present in the class level or subroutine level tables
     // then this MUST be either a class name, or a subroutine name
@@ -58,5 +58,22 @@ public class SymbolTable
         }
 
         return _classLevelDictionary[name];
+    }
+
+    public bool HasSymbolInEitherScope(string name, out Symbol symbol)
+    {
+        if (_subRoutineSymbolDictionary.ContainsKey(name))
+        {
+            symbol = _subRoutineSymbolDictionary[name];
+            return true;
+        }
+        else if (_classLevelDictionary.ContainsKey(name))
+        {
+            symbol = _classLevelDictionary[name];
+            return true;
+        }
+
+        symbol = null;
+        return false;
     }
 }

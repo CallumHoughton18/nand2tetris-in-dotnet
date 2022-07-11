@@ -16,7 +16,7 @@ public enum PushSegments
 
 public enum PopSegments
 {
-    ARG,
+    ARGUMENT,
     LOCAL,
     STATIC,
     THIS,

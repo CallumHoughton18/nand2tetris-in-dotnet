@@ -7,11 +7,11 @@ namespace JackCompiler.Core.Parser;
 
 sealed class CompilationEngine
 {
-    public Token CurrentToken => _tokens[_index];
-    private int _index = 0;
+    private int _index = -1;
     private int _counter = 0;
     private readonly IList<Token> _tokens;
     private readonly VMWriter _writer;
+    private string _currentClassName;
 
     private readonly string[] _binaryOperators = { "+", "-", "*", "/", "|", "=", "<", ">", "&" };
     private readonly string[] _unaryOperators = { "-", "~" };
@@ -33,10 +33,9 @@ sealed class CompilationEngine
 
     public void CompileClass()
     {
-        _index = 0;
-        if (CurrentToken.TokenValue != "class") throw new InvalidDataException("First token is not a class");
-
-        var classToken = CurrentToken;
+        var token = Advance(); // class
+        if (token.TokenValue != "class") throw new InvalidDataException("First token is not a class");
+        _currentClassName = Advance().TokenValue;
         Advance(); // {
 
         if (HasClassVarDec())
@@ -88,7 +87,7 @@ sealed class CompilationEngine
 
         Advance(); // ')'
 
-        CompileSubRoutineBody(subroutineName, subroutineType);
+        CompileSubRoutineBody($"{_currentClassName}.{subroutineName}", subroutineType);
     }
 
     private void CompileParametersList()
@@ -155,7 +154,7 @@ sealed class CompilationEngine
     {
         while (HasStatement())
         {
-            switch (CurrentToken.TokenValue)
+            switch (Advance().TokenValue)
             {
                 case "let":
                     CompileLetStatement();
@@ -178,25 +177,33 @@ sealed class CompilationEngine
 
     private void CompileLetStatement()
     {
-        Advance(); // let keyword
-        Advance(); // varName
-
+        var isArray = false;
+        var varNameToken = Advance(); // varName
+        
         if (NextTokenValueIs("["))
         {
-            Advance(); // [
-            CompileExpression();
-            Advance(); // ]
+            isArray = true;
+            CompileArrayIndex(varNameToken.TokenValue);
         }
 
         Advance(); // = 
-
         CompileExpression();
+        if (isArray)
+        {
+            _writer.WritePop(PopSegments.TEMP , 0);
+            _writer.WritePop(PopSegments.POINTER, 1);
+            _writer.WritePush(PushSegments.TEMP, 0);
+            _writer.WritePop(PopSegments.THAT, 0);
+        }
+        else
+        {
+            SymbolKindToPopStatementIfExists(varNameToken.TokenValue);
+        }
         Advance(); // ;
     }
 
     private void CompileIfStatement()
     {
-        Advance(); // if keyword
         Advance(); // (
         CompileExpression();
         Advance(); // )
@@ -227,7 +234,6 @@ sealed class CompilationEngine
         var l1 = $"while-{GetUniqueId()}";
         var l2 = $"while-{GetUniqueId()}";
         _writer.WriteLabel(l1);
-        Advance(); // while
         Advance(); // (
         CompileExpression();
         Advance(); // )
@@ -243,33 +249,56 @@ sealed class CompilationEngine
 
     private void CompileDoStatement()
     {
-        Advance(); // do
+        var callName = "";
+        var nLocals = 0;
         // subroutineCall
         var classOrVarName = Advance().TokenValue; // class or var name
         if (NextTokenValueIs("."))
         {
             Advance(); // . symbol
             var subRoutineName = Advance().TokenValue; // subroutine name
-            if ()
+            if (_symbolTable.HasSymbolInEitherScope(classOrVarName, out _))
+            {
+                SymbolKindToPushStatementIfExists(classOrVarName);
+                callName = $"{_symbolTable.TypeOf(classOrVarName)}.{subRoutineName}";
+                nLocals += 1;
+            }
+            else
+            {
+                callName = $"{classOrVarName}.{subRoutineName}";
+            }
         }
-        
+        else
+        {
+            _writer.WritePush(PushSegments.POINTER, 0);
+            callName = $"{_currentClassName}.{classOrVarName}";
+            nLocals += 1;
+
+        }
+
         Advance(); // (
-        CompileExpressionList();
+        nLocals += CompileExpressionList();
+        _writer.WriteCall(callName, nLocals);
+        _writer.WritePop(PopSegments.TEMP, 0);
         Advance(); // )
-        
         Advance(); // ;
     }
 
     private void CompileReturnStatement()
     {
-        AddNoneTerminalSection("returnStatement");
-        Advance(); // return keyword
-        if (HasExpression())
+        var shouldReturnEmpty = true;
+        while (HasExpression())
         {
+            shouldReturnEmpty = false;
             CompileExpression();
         }
+
+        if (shouldReturnEmpty)
+        {
+            _writer.WritePush(PushSegments.CONSTANT, 0);
+        }
+        _writer.WriteReturn();
         Advance(); // ;
-        EndOfNoneTerminalSection();
     }
 
     private void CompileExpression()
@@ -279,6 +308,7 @@ sealed class CompilationEngine
         while (_binaryOperators.Any(NextTokenValueIs))
         {
             var opSymbol = Advance().TokenValue; // op symbol
+            CompileTerm();
             if (opSymbol == "+") _writer.WriteArithmetic(ArithmeticCommands.ADD);
             else if (opSymbol == "-") _writer.WriteArithmetic(ArithmeticCommands.SUB);
             else if (opSymbol == "*") _writer.WriteCall("Math.multiply", 2);
@@ -288,39 +318,88 @@ sealed class CompilationEngine
             else if (opSymbol == "|") _writer.WriteArithmetic(ArithmeticCommands.OR);
             else if (opSymbol == "&") _writer.WriteArithmetic(ArithmeticCommands.ADD);
             else if (opSymbol == "=") _writer.WriteArithmetic(ArithmeticCommands.EQ);
-            
-            CompileTerm();
         }
     }
 
     private void CompileTerm()
     {
-        if (NextTokenTypeIs(TokenType.STRING_CONST, TokenType.INTEGER_CONST) || _keyWordConstants.Any(NextTokenValueIs))
+        if (NextTokenTypeIs(TokenType.INTEGER_CONST))
         {
-            Advance(); // constant val
+            var value = Advance().TokenValue;
+            _writer.WritePush(PushSegments.CONSTANT, int.Parse(value));
+        }
+        else if (NextTokenTypeIs(TokenType.STRING_CONST))
+        {
+            var value = Advance().TokenValue;
+            _writer.WritePush(PushSegments.CONSTANT, value.Length);
+            _writer.WriteCall("String.new", 1);
+            foreach (var chr in value)
+            {
+                _writer.WritePush(PushSegments.CONSTANT, chr);
+                _writer.WriteCall("String.appendChar", 2);
+                
+            }
+        }
+        else if (_keyWordConstants.Any(NextTokenValueIs))
+        {
+            var value = Advance().TokenValue;
+            if (value == "this") _writer.WritePush(PushSegments.POINTER, 0);
+            else _writer.WritePush(PushSegments.CONSTANT, 0);
+            if (value == "true")
+            {
+                _writer.WriteArithmetic(ArithmeticCommands.NOT);
+            }
         }
         else if (NextTokenTypeIs(TokenType.IDENTIFIER))
         {
-            Advance(); // class name or var name
-            switch (CurrentToken.TokenValue)
+            var nLocals = 0;
+            var isArray = false;
+            var nameToken = Advance(); // class name or var name
+            switch (_tokens[_index + 1].TokenValue)
             {
                 case "[": // array access
-                    Advance(); // [
-                    CompileExpression();
-                    Advance(); // ]
+                    isArray = true;
+                    CompileArrayIndex(nameToken.TokenValue);
                     break;
                 case "(":
+                    nLocals += 1;
+                    _writer.WritePush(PushSegments.POINTER, 0);
                     Advance(); // (
-                    CompileExpressionList();
+                    nLocals += CompileExpressionList();
                     Advance(); // )
+                    _writer.WriteCall($"{_currentClassName}.{nameToken.TokenValue}", nLocals);
                     break;
                 case ".":
                     Advance(); // .
-                    Advance(); // subroutine name
+                    var callName = "";
+                    var subName = Advance(); // subroutine name
+                    if (_symbolTable.HasSymbolInEitherScope(nameToken.TokenValue, out _))
+                    {
+                        SymbolKindToPushStatementIfExists(nameToken.TokenValue);
+                        nLocals += 1;
+                        callName = $"{_symbolTable.TypeOf(nameToken.TokenValue)}.{subName.TokenValue}";
+                    }
+                    else
+                    {
+                        callName = $"{nameToken.TokenValue}.{subName.TokenValue}";
+                    }
                     Advance(); // (
-                    CompileExpressionList();
+                    nLocals += CompileExpressionList();
                     Advance(); // )
+                    _writer.WriteCall(callName, nLocals);
                     break;
+            }
+
+
+            if (isArray)
+            {
+                _writer.WritePop(PopSegments.POINTER, 1);
+                _writer.WritePush(PushSegments.THAT, 0);
+                //SymbolKindToPushStatementIfExists(nameToken.TokenValue);
+            }
+            else
+            {
+                SymbolKindToPushStatementIfExists(_tokens[_index].TokenValue);
             }
         }
         else if (NextTokenValueIs("("))
@@ -331,28 +410,38 @@ sealed class CompilationEngine
         }
         else if (_unaryOperators.Any(NextTokenValueIs))
         {
-            Advance(); // unary op symbol
+            var op = Advance(); // unary op symbol
             CompileTerm();
+            if (op.TokenValue == "-") _writer.WriteArithmetic(ArithmeticCommands.NEG);
+            else if (op.TokenValue == "~") _writer.WriteArithmetic(ArithmeticCommands.NOT);
         }
-        
-        EndOfNoneTerminalSection();
     }
 
-    private void CompileExpressionList()
+    private void CompileArrayIndex(string name)
     {
-        AddNoneTerminalSection("expressionList");
+        Advance(); // [
+        CompileExpression();
+        Advance(); // ]
+        SymbolKindToPushStatementIfExists(name);
+        _writer.WriteArithmetic(ArithmeticCommands.ADD);
+    }
+
+    private int CompileExpressionList()
+    {
+        var counter = 0;
         if (HasExpression())
         {
             CompileExpression();
+            counter += 1;
         }
 
         while (NextTokenValueIs(","))
         {
             Advance(); // , symbol
             CompileExpression();
+            counter += 1;
         }
-        
-        EndOfNoneTerminalSection();
+        return counter;
     }
 
     private bool HasExpression()
@@ -381,19 +470,74 @@ sealed class CompilationEngine
 
     public bool NextTokenValueIs(string value)
     {
-        var nextToken = _tokens[_index];
+        if (_index == _tokens.Count - 1) return false;
+        var nextToken = _tokens[_index+1];
         return nextToken.TokenValue == value;
     }
 
     private bool NextTokenTypeIs(params TokenType[] tokenTypes)
     {
-        var nextToken = _tokens[_index];
+        if (_index == _tokens.Count - 1) return false;
+        var nextToken = _tokens[_index+1];
         return tokenTypes.Any(x => nextToken.TokenType == x);
     }
 
     private Token Advance()
     {
         _index++;
-        return CurrentToken;
+        var token = _tokens[_index];
+        return token;
+    }
+
+    private void SymbolKindToPopStatementIfExists(string name)
+    {
+
+        if (_symbolTable.HasSymbolInEitherScope(name, out Symbol symbol))
+        {
+            switch (symbol.Kind)
+            {
+                case SymbolKind.STATIC:
+                    _writer.WritePop(PopSegments.STATIC, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.ARG:
+                    _writer.WritePop(PopSegments.ARGUMENT, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.VAR:
+                    _writer.WritePop(PopSegments.LOCAL, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.NONE:
+                    _writer.WritePop(PopSegments.THIS, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.FIELD:
+                    _writer.WritePop(PopSegments.THIS, _symbolTable.IndexOf(name));
+                    break;
+            }
+        }
+    }
+
+    private void SymbolKindToPushStatementIfExists(string name)
+    {
+
+        if (_symbolTable.HasSymbolInEitherScope(name, out Symbol symbol))
+        {
+            switch (symbol.Kind)
+            {
+                case SymbolKind.STATIC:
+                    _writer.WritePush(PushSegments.STATIC, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.ARG:
+                    _writer.WritePush(PushSegments.ARGUMENT, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.VAR:
+                    _writer.WritePush(PushSegments.LOCAL, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.NONE:
+                    _writer.WritePush(PushSegments.THIS, _symbolTable.IndexOf(name));
+                    break;
+                case SymbolKind.FIELD:
+                    _writer.WritePush(PushSegments.THIS, _symbolTable.IndexOf(name));
+                    break;
+            }
+        }
     }
 }
