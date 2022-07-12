@@ -1,0 +1,56 @@
+class Cell {
+    field int column, row, size, startingX, startingY;
+    field boolean isFilled;
+
+    constructor Cell new(int columnNum, int rowNum, int givenSize) {
+        let column = columnNum;
+        let row = rowNum;
+        let size = givenSize;
+        let startingX = column * size;
+        let startingY = row * size;
+        return this;
+    }
+
+    method void show() {
+        if (isFilled) {
+            do Screen.drawRectangle(startingX, startingY, startingX + size, startingY + size);  
+            return;  
+        }
+        do Screen.drawLine(startingX, startingY, startingX + size, startingY);
+        do Screen.drawLine(startingX+size, startingY, startingX+size, startingY+size);
+        do Screen.drawLine(startingX, startingY, startingX, startingY+size);
+        do Screen.drawLine(startingX+size, startingY+size, startingX, startingY+size);
+        return;
+    }
+
+    method void fill() {
+        let isFilled = true;
+        do show();
+        return;
+    }
+
+    method int getStartingX() {
+        return startingX;
+    }
+
+    method int getStartingY() {
+        return startingY;
+    }
+
+    method int getSize() {
+        return size;
+    }
+
+    method int getColumn() {
+        return column;
+    }
+
+    method int getRow() {
+        return row;
+    }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}

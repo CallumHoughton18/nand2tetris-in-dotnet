@@ -17,7 +17,11 @@ public class JackCompilerRunner
 
         foreach (var vmFile in vmFilePaths)
         {
-            var runner = new JackToVmConverter(vmFile, _outPath);
+            var outputFilePath = Directory.Exists(_outPath)
+                ? Path.Combine(_outPath, $"{Path.GetFileNameWithoutExtension(vmFile)}.vm")
+                : _outPath;
+            
+            var runner = new JackToVmConverter(vmFile, outputFilePath);
             runner.Run();
         }
 

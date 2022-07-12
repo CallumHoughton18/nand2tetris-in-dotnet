@@ -90,7 +90,7 @@ sealed class Tokenizer
                 potentialToken = potentialToken.Trim();
             }
             
-            if (_keywords.Contains(potentialToken) && !string.IsNullOrWhiteSpace(potentialToken))
+            if (_keywords.Contains(potentialToken) && !string.IsNullOrWhiteSpace(potentialToken) && !char.IsLetter(text[i + 1]))
             {
                 returnIndex = i + 1;
                 tokenValue = potentialToken;

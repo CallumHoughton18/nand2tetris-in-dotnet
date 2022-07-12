@@ -1,5 +1,4 @@
 using JackCompiler.Core.Code_Writer;
-using JackCompiler.Core.Parser.Grammar;
 using JackCompiler.Core.Symbol_Table;
 using JackCompiler.Core.Syntax_Analyzer;
 
@@ -8,7 +7,8 @@ namespace JackCompiler.Core.Parser;
 sealed class CompilationEngine
 {
     private int _index = -1;
-    private int _counter = 0;
+    private int _ifCounter = 0;
+    private int _whileCounter = 0;
     private readonly IList<Token> _tokens;
     private readonly VMWriter _writer;
     private string _currentClassName;
@@ -25,10 +25,18 @@ sealed class CompilationEngine
         _symbolTable = new SymbolTable();
     }
 
-    private int GetUniqueId()
+    private int GetUniqueIfId()
     {
-        _counter++;
-        return _counter;
+        var id = _ifCounter;
+        _ifCounter++;
+        return id;
+    }
+
+    private int GetUniqueWhileId()
+    {
+        var id = _whileCounter;
+        _whileCounter++;
+        return id;
     }
 
     public void CompileClass()
@@ -75,6 +83,8 @@ sealed class CompilationEngine
     
     private void CompileSubRoutine()
     {
+        _whileCounter = 0;
+        _ifCounter = 0;
         _symbolTable.StartSubRoutine();
         var subroutineType = Advance().TokenValue; // subroutine type
         Advance(); // subroutine return type or constructor
@@ -204,47 +214,55 @@ sealed class CompilationEngine
 
     private void CompileIfStatement()
     {
+        var ifLabelId = GetUniqueIfId();
         Advance(); // (
         CompileExpression();
         Advance(); // )
         
-        var L1 = $"L1-{GetUniqueId()}";
-        var L2 = $"L2-{GetUniqueId()}";
+        var ifTrueLabel = $"IF_TRUE{ifLabelId}";
+        var ifFalseLabel = $"IF_FALSE{ifLabelId}";
+        var ifEndLabel = $"IF_END{ifLabelId}";
         
-        _writer.WriteArithmetic(ArithmeticCommands.NOT);
-        _writer.WriteIf(L1);
+        _writer.WriteIf(ifTrueLabel);
+        _writer.WriteGoto(ifFalseLabel);
+        _writer.WriteLabel(ifTrueLabel);
         Advance(); // {
         CompileStatements();
-        _writer.WriteGoto(L2);
         Advance(); // }
-        _writer.WriteLabel(L1);
 
         if (NextTokenValueIs("else"))
         {
+            _writer.WriteGoto(ifEndLabel);
+            _writer.WriteLabel(ifFalseLabel);
             Advance(); // else
             Advance(); // {
             CompileStatements();
             Advance(); // }
+            _writer.WriteLabel(ifEndLabel);
         }
-        _writer.WriteLabel(L2);
+        else
+        {
+            _writer.WriteLabel(ifFalseLabel);
+        }
     }
 
     private void CompileWhileStatement()
     {
-        var l1 = $"while-{GetUniqueId()}";
-        var l2 = $"while-{GetUniqueId()}";
-        _writer.WriteLabel(l1);
+        var whileId = GetUniqueWhileId();
+        var whileExpLabel = $"WHILE_EXP{whileId}";
+        var whileEndLabel = $"WHILE_END{whileId}";
+        _writer.WriteLabel(whileExpLabel);
         Advance(); // (
         CompileExpression();
-        Advance(); // )
-        
+
         _writer.WriteArithmetic(ArithmeticCommands.NOT);
-        _writer.WriteIf(l2);
+        _writer.WriteIf(whileEndLabel);
+        Advance(); // )
         Advance(); // {
-        CompileStatements(); 
+        CompileStatements();
+        _writer.WriteGoto(whileExpLabel);
+        _writer.WriteLabel(whileEndLabel);
         Advance(); // }
-        _writer.WriteGoto(l1);
-        _writer.WriteLabel(l2);
     }
 
     private void CompileDoStatement()
@@ -316,7 +334,7 @@ sealed class CompilationEngine
             else if (opSymbol == "<") _writer.WriteArithmetic(ArithmeticCommands.LT);
             else if (opSymbol == ">") _writer.WriteArithmetic(ArithmeticCommands.GT);
             else if (opSymbol == "|") _writer.WriteArithmetic(ArithmeticCommands.OR);
-            else if (opSymbol == "&") _writer.WriteArithmetic(ArithmeticCommands.ADD);
+            else if (opSymbol == "&") _writer.WriteArithmetic(ArithmeticCommands.AND);
             else if (opSymbol == "=") _writer.WriteArithmetic(ArithmeticCommands.EQ);
         }
     }
@@ -395,7 +413,6 @@ sealed class CompilationEngine
             {
                 _writer.WritePop(PopSegments.POINTER, 1);
                 _writer.WritePush(PushSegments.THAT, 0);
-                //SymbolKindToPushStatementIfExists(nameToken.TokenValue);
             }
             else
             {

@@ -8,18 +8,18 @@ namespace JackCompiler.Core;
 
 public class JackToVmConverter
 {
-    private readonly string _assemblyFilePath;
+    private readonly string _jackFilePath;
     private readonly string _outPath;
 
-    public JackToVmConverter(string assemblyFilePath, string outputFilePath)
+    public JackToVmConverter(string jackFilePath, string outputFilePath)
     {
-        _assemblyFilePath = assemblyFilePath;
+        _jackFilePath = jackFilePath;
         _outPath = outputFilePath;
     }
 
     public string Run()
     {
-        using var reader = File.OpenRead(_assemblyFilePath);
+        using var reader = File.OpenRead(_jackFilePath);
         using var writer = new StreamWriter(_outPath, false);
         var compiler = new JackCompiler();
         var generatedTokens = compiler.GenerateTokens(new StreamReader(reader));

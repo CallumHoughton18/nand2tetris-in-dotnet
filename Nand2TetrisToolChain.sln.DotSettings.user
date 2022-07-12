@@ -20,5 +20,7 @@
     &lt;TestId&gt;xUnit::5C749280-57EC-44BF-AD07-4A98F3B842A3::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerParserTests.Should_Give_Correct_Compiler_Output&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.UnitTest1.Should_Give_Correct_Compiler_Output&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.UnitTest1&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerIntegrationTests.Should_Give_Correct_Compiler_Output_For_Directory&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerIntegrationTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -50,7 +50,7 @@ M=D";
 D=A
 @5
 D=D+A
-@TEMP_ADDR
+@R13
 M=D
 
 @SP
@@ -58,7 +58,7 @@ M=M-1
 A=M 
 D=M
 
-@TEMP_ADDR
+@R13
 A=M
 M=D";   }
 
