@@ -35,8 +35,6 @@ class Main {
         
         
         
-        
-        
         // do Screen.drawLine(0,0,255,255);        
         // do Screen.drawLine(511,50,0,100);        // diagonal down to the left
         // do Screen.drawLine(50,100,50,200);        // down
