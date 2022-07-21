@@ -19,7 +19,7 @@ class Screen {
     function void init() {
         var int i, value;
         // set it as black to begin with
-        let color = 1;
+        let color = -1;
         let screen = 16384;
         let power2 = Array.new(16);
 
@@ -46,7 +46,7 @@ class Screen {
     /** Sets the current color, to be used for all subsequent drawXXX commands.
      *  Black is represented by true, white by false. */
     function void setColor(boolean b) {
-        if (b) { let color = 1; }
+        if (b) { let color = -1; }
         else { let color = 0; }
         return;
     }
@@ -64,7 +64,7 @@ class Screen {
 
         let value = screen[relativeAddress];
 
-        if (color = 1) {
+        if (color = -1) {
             let value = (value | power2[bitRequired]);
             let screen[relativeAddress] = value;
         }
@@ -98,10 +98,12 @@ class Screen {
 
         // Horizontal line
         if (dy = 0) {
-            while (~(a = dx)) {
-                let a = a + 1;
-                do Screen.drawPixel(x1 + (a * xModifier), y1);
-            }
+            // The unoptimized way of doing this is commented out
+            // while (~(a = dx)) {
+            //     let a = a + 1;
+            //     do Screen.drawPixel(x1 + (a * xModifier), y1);
+            // }
+            do Screen.drawHorizontalLine(x1, x2, y1);
             return;
         }
 
@@ -134,7 +136,7 @@ class Screen {
         var int i;
         let i = y1;
         while (i < (y2 + 1)) {
-            do Screen.drawLine(x1, i, x2, i);
+            do Screen.drawHorizontalLine(x1, x2, i);
             let i = i + 1;
         }
         return;
@@ -153,8 +155,38 @@ class Screen {
             let x1 = x - base;
             let x2 = x + base;
 
-            do Screen.drawLine((x1), (y+dy), (x2), (y+dy));
+            do Screen.drawHorizontalLine(x1, x2, (y+dy));
             let dy = dy + 1;
+        }
+        return;
+    }
+
+    function void drawHorizontalLine(int x1, int x2, int y) {
+        var int temp, relativeAddress, chunk;
+
+        // always make sure x2 > x1
+        if (x2 < x1) {
+            let temp = x1;
+            let x1 = x2;
+            let x2 = temp;
+        }
+
+        let chunk = x1;
+
+        // this draws pixel by pixel, until we can safely draw a 16 bit chunk
+        // which makes horizontal line rendering a lot quicker.
+        while (chunk < (x2 + 1)) {
+            // if chunk modulo 16 != 0 OR 16 bit chunk size would be greater than x2
+            if (~((chunk - (16 * (chunk/16))) = 0) | ((chunk + 16) > x2)) {
+                do Screen.drawPixel(chunk, y);
+                let chunk = chunk + 1;
+            }
+            else {
+                let relativeAddress = (y * 32) + (chunk / 16);
+                let screen[relativeAddress] = color;
+
+                if ((chunk + 16) < (x2 + 1)) { let chunk = chunk + 16; }
+            }
         }
         return;
     }

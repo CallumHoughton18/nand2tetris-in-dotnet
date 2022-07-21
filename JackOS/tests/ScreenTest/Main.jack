@@ -32,12 +32,17 @@ class Main {
         do Screen.drawLine(106,60,86,60);       
         do Screen.drawLine(117,35,102,20);     
 
+        
+        
+        
+        
+        
         // do Screen.drawLine(0,0,255,255);        
         // do Screen.drawLine(511,50,0,100);        // diagonal down to the left
         // do Screen.drawLine(50,100,50,200);        // down
         // do Screen.drawLine(60,200,60,100);        // diagonal down to the left
         // do Screen.drawLine(100,50,50,50);        // diagonal down to the left
-        // do Screen.drawRectangle(100,100,300,150);  // test  
+        //do Screen.drawRectangle(1,0,200,200);  // test  
 
         // do Screen.drawLine(0,220,511,220);        // base line
         // do Screen.drawLine(0,221,511,221);        // base line
