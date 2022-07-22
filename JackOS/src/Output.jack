@@ -253,7 +253,7 @@ class Output {
         let strLength = s.length();
         let i = 2;
 
-        while (i < (strLength + 1)) {
+        while (i < (strLength + 2)) {
             let currentChar = s[i];
             do Output.printChar(currentChar);
             let i = i + 1;
@@ -264,12 +264,28 @@ class Output {
     // /** Displays the given integer starting at the cursor location,
     //  *  and advances the cursor appropriately. */
     function void printInt(int i) {
-        var String str;
-        let str = String.new(10);
-        do str.setInt(i);
+        var int moduloI;
 
-        do Output.printString(str);
-        do str.dispose();
+        if (i < 0) {
+            do Output.printChar(45);
+            let i = Math.abs(i);
+        }
+
+        let moduloI = i - (10 * (i/10));
+
+        if (i = 0) {
+            do Output.printChar(48);
+            return;
+        }
+		if (i > 9) 
+		{
+			do Output.printInt(i/10);
+            do Output.printChar((48 + moduloI));
+		}
+		else 
+		{
+            do Output.printChar((48 + moduloI));
+		}
         return;
     }
 
@@ -289,7 +305,6 @@ class Output {
         else {
             let cursorX = cursorX - 1;
         }
-        do Output.printChar(32);
         return;
     }
 }
