@@ -251,11 +251,10 @@ class Output {
         var char currentChar, i, strLength;
 
         let strLength = s.length();
-        let i = 2;
+        let i = 0;
 
-        while (i < (strLength + 2)) {
-            let currentChar = s[i];
-            do Output.printChar(currentChar);
+        while (i < strLength) {
+            do Output.printChar(s.charAt(i));
             let i = i + 1;
         }       
         return;

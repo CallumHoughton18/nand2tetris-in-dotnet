@@ -9,27 +9,20 @@
  */
 class Math {
     static Array twoToThe;
+    static int qy2;
+
     /** Initializes the library. */
     function void init() {
+        var int i, value;
         let twoToThe = Array.new(16);
-        let twoToThe[0] = 1;
-        let twoToThe[1] = 2;
-        let twoToThe[2] = 4;
-        let twoToThe[3] = 8;
-        let twoToThe[4] = 16;
-        let twoToThe[5] = 32;
-        let twoToThe[6] = 64;
-        let twoToThe[7] = 128;
-        let twoToThe[8] = 256;
-        let twoToThe[9] = 512;
-        let twoToThe[10] = 1024;
-        let twoToThe[11] = 2048;
-        let twoToThe[12] = 4096;
-        let twoToThe[13] = 8192;
-        let twoToThe[14] = 16384;
-        // -1 instead of 32768 because of two's complement
-        // as that binary number overflows to -1
-        let twoToThe[15] = -1;
+
+        let i = 0;
+        let value = 1;
+        while(i < 16) {
+            let twoToThe[i] = value;
+            let i = i + 1;
+            let value = value + value;
+        }
         return;
     }
 
@@ -46,6 +39,7 @@ class Math {
      */
     function int multiply(int x, int y) {
         var int sum, shiftedX, i;
+
         let sum = 0;
         let shiftedX = x;
 
@@ -77,27 +71,52 @@ class Math {
      */
     function int divide(int x, int y) {
         var int q, result;
-        var int negX, negY;
+        var int negX, negY, absX, absY;
 
+        let qy2 = 0;
         let negX = x < 0;
         let negY = y < 0;
 
-        let x = Math.abs(x);
-        let y = Math.abs(y);   
+        let absX = Math.abs(x);
+        let absY = Math.abs(y);   
 
-        if (y > x){ return 0; }
+        let result = Math.unsignedDivide(absX, absY);
+
+        if (negX = negY) { return result; }
+        else {return -result; }  
+    }
+
+    function int unsignedDivide(int absX, int absY) {
+        var int result, q;
+
+        if (absY > absX){ return 0; }
+        // if (qy2 = 0) { let qy2 = (q + q) * absY; }
+
+        if (absY < 16384) {
+            let q = Math.unsignedDivide(absX, absY + absY);
+        } 
+        else {
+            let q = 0;
+        }
         
-        let q = Math.divide(x, y + y);
-        if(x - (2 * q * y) < y) {
+        // if(absX - ((q + q) * absY) < absY) {
+        //     let result = q + q;
+        // }
+        // else 
+        // {
+        //     let result = q + q + 1;
+        // }
+
+        if(absX - qy2 < absY) {
             let result = q + q;
         }
         else 
         {
+            let qy2 = qy2 + absY;
             let result = q + q + 1;
         }
 
-        if (negX = negY) { return result; }
-        else {return -result; }  
+        return result;
     }
 
     /** Returns the integer part of the square root of x. */

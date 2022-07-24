@@ -56,11 +56,16 @@ class Screen {
     function void drawPixel(int x, int y) {
         // array accessing is much faster that calling peek and poke
         // which is important when drawing to the screen
-        var int relativeAddress, address, value, bitRequired;
+        var int relativeAddress, value, bitRequired;
 
+        if((x < 0) | (x > 511)) {
+        do Sys.error(7);
+        }
+        if((y < 0) | (y > 255)) {
+        do Sys.error(7);
+        }
 
         let relativeAddress = (y * 32) + (x / 16);
-        let address = screen + relativeAddress;
         let bitRequired = x - (16 * (x / 16));
 
         let value = screen[relativeAddress];
