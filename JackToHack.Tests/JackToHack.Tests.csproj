@@ -33,6 +33,13 @@
       <None Update="Test Input Files\Pong\PongGame.jack">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Test Input Files\HelloWorld\Main.jack">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\JackToHack\JackToHack.csproj" />
     </ItemGroup>
 
 </Project>

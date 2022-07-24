@@ -22,5 +22,6 @@
     &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.UnitTest1&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerIntegrationTests.Should_Give_Correct_Compiler_Output_For_Directory&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::F29B551E-0671-4595-A85A-1FE2EDCB2B3A::net6.0::JackCompiler.Core.Tests.JackCompilerRunnerIntegrationTests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::65017371-218C-49E7-9D27-A04C36F2E561::net6.0::JackToHack.Tests.JackToHackEndToEndTests.Should_Generate_Machine_Code&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

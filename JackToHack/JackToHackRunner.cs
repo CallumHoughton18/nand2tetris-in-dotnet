@@ -8,20 +8,36 @@ public class JackToHackRunner
 {
     private readonly string _codeLocation;
     private readonly string _outputDirectory;
+    private readonly string _jackOSLocation = "./JackOS/custom";
 
     public JackToHackRunner(string codeLocation, string outputDirectory)
     {
         _codeLocation = codeLocation;
         if (!Directory.Exists(outputDirectory))
         {
-            throw new DirectoryNotFoundException($"{outputDirectory} is not a directory...");
+            Directory.CreateDirectory(outputDirectory);
         }
         _outputDirectory = outputDirectory;
     }
 
+    public void CleanUpOutputDirectory()
+    {
+        var filesForDeletion =
+            Directory.GetFiles(_outputDirectory)
+                .Where(x => x.EndsWith(".jack") | x.EndsWith(".vm") | x.EndsWith(".asm") | x.EndsWith(".hack"));
+        
+        foreach (var file in filesForDeletion)
+        {
+            File.Delete(file);
+        }
+    }
+
     public string Run()
     {
-        var compilerOutputFiles = RunJackCompiler();
+        CleanUpOutputDirectory();
+        var compilerOutputFiles = RunJackCompiler().ToList();
+        var osVmFilePaths = CopyJackOS().ToList();
+        compilerOutputFiles.AddRange(osVmFilePaths);
         var asmFilePath = RunJackVmTranslator(compilerOutputFiles);
         var hackMachineCodeFilePath = RunHackAssembler(asmFilePath);
         return hackMachineCodeFilePath;
@@ -29,22 +45,34 @@ public class JackToHackRunner
 
     private string RunHackAssembler(string assemblyFilePath)
     {
-        var outputFileName = $"{Path.GetDirectoryName(assemblyFilePath)}.hack";
+        
+        var outputFileName = $"{Path.GetFileNameWithoutExtension(assemblyFilePath)}.hack";
         var outputFilePath = Path.Combine(_outputDirectory, outputFileName);
         var runner = new HackAssemblerRunner(assemblyFilePath, outputFilePath );
         return runner.Run();
     }
 
-    private string RunJackVmTranslator(IEnumerable<string> compilerOutputFiles)
+    private IEnumerable<string> CopyJackOS()
     {
-        var asmFiles = new List<string>();
+        var files = Directory.GetFiles(_jackOSLocation);
+        foreach (var jackOSVmFile in files)
+        {
+            var outputFilePath = Path.Combine(_outputDirectory, Path.GetFileName(jackOSVmFile));
+            File.Copy(jackOSVmFile, outputFilePath);
+            yield return outputFilePath;
+        }
+    }
 
-        var outputFiles = compilerOutputFiles as string[] ?? compilerOutputFiles.ToArray();
+    private string RunJackVmTranslator(IEnumerable<string> vmFilePaths)
+    {
+        var outputFiles = vmFilePaths as string[] ?? vmFilePaths.ToArray();
+        
         var outputFileName = $"{Path.GetDirectoryName(outputFiles.First())}.asm";
-        var outputFilePath = Path.Combine(_outputDirectory, outputFileName);
+        var outputFilePath = Path.Combine(_outputDirectory, Path.GetFileName(outputFileName));
         var compilerOutputDirectory = Path.GetDirectoryName(outputFiles.First());
         
         var vmTranslator = new HackVmTranslatorRunner(compilerOutputDirectory, outputFilePath);
+        vmTranslator.Run();
 
         return outputFilePath;
     }

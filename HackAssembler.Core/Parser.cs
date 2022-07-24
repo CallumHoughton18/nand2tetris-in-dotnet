@@ -9,7 +9,7 @@ public static class Parser
         if (!assemblyInstruction.StartsWith("@")) throw new FormatException("Not an A instruction");
         
         string aOpCode = "0";
-        var valueAsInt16 = Int16.Parse(assemblyInstruction.Trim('@'));
+        var valueAsInt16 = int.Parse(assemblyInstruction.Trim('@'));
         if (valueAsInt16 < 0) throw new Exception("Addresses must be positive");
         string binary = Convert.ToString(valueAsInt16, 2).PadLeft(15, '0');
         return $"{aOpCode}{binary}";

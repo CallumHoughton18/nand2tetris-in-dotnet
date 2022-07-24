@@ -13,4 +13,31 @@
       <ProjectReference Include="..\JackCompiler.Core\JackCompiler.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="JackOS\Custom\Array.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Keyboard.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Math.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Memory.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Output.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Screen.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\String.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="JackOS\Custom\Sys.vm">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
