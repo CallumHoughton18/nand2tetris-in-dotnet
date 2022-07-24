@@ -87,10 +87,13 @@ class Math {
     }
 
     function int unsignedDivide(int absX, int absY) {
+        // 100 / 7
+        // algo is based on the idea that we know that 100 / 7 is atleast twice as much as 50 / 7 
+        // and 50 / 7 is twice as much as 25 / 7 etc etc etc
+
         var int result, q;
 
         if (absY > absX){ return 0; }
-        // if (qy2 = 0) { let qy2 = (q + q) * absY; }
 
         if (absY < 16384) {
             let q = Math.unsignedDivide(absX, absY + absY);
@@ -100,12 +103,7 @@ class Math {
         }
         
         // if(absX - ((q + q) * absY) < absY) {
-        //     let result = q + q;
-        // }
-        // else 
-        // {
-        //     let result = q + q + 1;
-        // }
+        // is very inefficient, so we can cache part of this calculation per run
 
         if(absX - qy2 < absY) {
             let result = q + q;
@@ -113,6 +111,7 @@ class Math {
         else 
         {
             let qy2 = qy2 + absY;
+            // this essentially updates the (q + q) * absY for the next recursive call above this one
             let result = q + q + 1;
         }
 

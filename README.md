@@ -1,6 +1,7 @@
 # Hack ToolChain in C# .NET
 
 This repo contains C# .NET implementations of the software projects required in the [nand2tetris](https://www.coursera.org/learn/build-a-computer) course.
+Along with an implementation of the JackOS, written in the Jack programming language.
 
 ## Hack Assembler in C#
 
@@ -86,3 +87,22 @@ by them.
 ### Tests
 
 Tests for the XML generator can be found in the JackCompiler.Core.Tests project.
+
+## JackOS
+
+A full implementation of the JackOS .jack standard library files can be found in the 'JackOS/src' directory.
+It also contains the suite of tests from the nand2tetris provided tools. The generated .vm files 
+when compiled need to be copied over to each test directory to run them on the nand2tetris VMEmulator.
+
+A couple of interesting optimizations where used:
+- **Screen.jack** contains some minor drawing optimizations (specifically for horizontal lines). This could 
+be further improved.
+- **Math.jack** contains optimizations for the division function. The sign of the result is only computed once, and the 
+expensive ((q + q) * absY) calculations has instead been replaced by a static int qy2 field that's reset on every division.
+
+Without these various optimizations, and the ones mentioned in the course lectures, the pong game will run incredibly slow.
+
+## JackToHack - End to End .hack Platform Code Generation
+
+The JackToHack project shows how all the generated tools can be plugged together to go from a .jack file to
+a .hack machine code file.
