@@ -1,0 +1,48 @@
+class Cursor {
+   field int col, row;
+   field int x, y ,size;
+
+   constructor Cursor new(Cell initialCell) {
+       do assignNewCellAndDraw(initialCell);
+       return this;
+   }
+
+   /** Assigns cursor position to the given cell, and redraws it */
+   method void assignNewCellAndDraw(Cell cell) {
+       let size = cell.getSize();
+       let x = cell.getStartingX();
+       let y = cell.getStartingY();
+       let col = cell.getColumn();
+       let row = cell.getRow();
+       do Screen.setColor(true);
+       do draw();
+       return;
+   }
+
+   method void dispose() {
+       do Memory.deAlloc(this);
+       return;
+   }
+
+   /** Draws the cursor on the screen. */
+   method void draw() {
+       do Screen.drawRectangle(x, y, x + size, y + size);
+       return;
+   }
+
+    method int getCurrentColumn() {
+        return col;
+    }
+
+    method int getCurrentRow() {
+        return row;
+    }
+
+    method void moveToCell(Cell cell) {
+       do Screen.setColor(false);
+       do draw();
+       do Screen.setColor(true);
+       do assignNewCellAndDraw(cell);
+       return;
+   }
+}

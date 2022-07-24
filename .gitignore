@@ -6,3 +6,5 @@ riderModule.iml
 GridDrawerInJack/*.vm
 !tools/bin
 tools/bin/Virtual Machine Emulator.dat
+JackOS/src/*.vm
+JackOS/tests/*.vm
